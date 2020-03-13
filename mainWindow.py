@@ -19,7 +19,7 @@ from PyQt5.QtCore import Qt, pyqtSlot, QSize
 
 from volumeViewerWidget import volumeViewerWidget, volumeSliceViewerWidget
 from featureDispWidget import featureDispWidget
-from featureSelWidget import featureSelWidget
+from statAnalyzelWidget import statAnalyzeWidget
 from gradeDispWidget import gradeDispWidget
 from curveWidget import curveWidget
 
@@ -95,6 +95,7 @@ class mainWindow(QMainWindow):
         super(mainWindow, self).__init__()
         self.__image = None # SimpleITK.Image
         self.__grade = None # Numpy array with shape [num_slice, num_class]
+        self.child_stat = statAnalyzeWidget()
         self.statusBar().showMessage('Initializing UI...')
         self.initUI()
         self.statusBar().showMessage('Initializing Core...')
@@ -102,9 +103,10 @@ class mainWindow(QMainWindow):
         self.statusBar().showMessage('Initializing Signal...')
         self.initSignals()
         self.statusBar().showMessage('Ready')
+
     
     def initUI(self):
-        self.setWindowTitle('Cartilage Evaluation System')
+        self.setWindowTitle('Radiomics System')
         screenGeometry = QApplication.desktop().screenGeometry()
         aspectRatio = 4/3.0
         blockLen = min(screenGeometry.width()/aspectRatio, \
@@ -140,7 +142,7 @@ class mainWindow(QMainWindow):
         self.FeatureDisp = featureDispWidget(self)
         #self.dicomInfo = dicomInfoWidget(self)
         self.controlPanel = controlPannelWidget(self)
-        self.FeatureSel = featureSelWidget(self)
+        #self.FeatureSel = featureSelWidget(self)
         #self.gradeDisp = gradeDispWidget(self)
         # self.refViewer = curveWidget(self)
         # self.SRViewer = volumeViewerWidget(self)
@@ -157,11 +159,11 @@ class mainWindow(QMainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, self.dockFeatureDisp)
         self.dockFeatureDisp.setWidget(self.FeatureDisp)
         # FeatureSelection
-        self.dockFeatureSel = QDockWidget("Selected Feature", self)
-        self.dockFeatureSel.setObjectName("dockFeatureSel")
-        self.addDockWidget(Qt.RightDockWidgetArea, self.dockFeatureSel)
-        self.dockFeatureSel.setWidget(self.FeatureSel)
-        self.tabifyDockWidget(self.dockFeatureDisp, self.dockFeatureSel)
+        # self.dockFeatureSel = QDockWidget("Selected Feature", self)
+        # self.dockFeatureSel.setObjectName("dockFeatureSel")
+        # self.addDockWidget(Qt.RightDockWidgetArea, self.dockFeatureSel)
+        # self.dockFeatureSel.setWidget(self.FeatureSel)
+        # self.tabifyDockWidget(self.dockFeatureDisp, self.dockFeatureSel)
 
         # # dicomInfo
         # self.dockDicomInfo = QDockWidget("DICOM Info", self)
@@ -181,7 +183,7 @@ class mainWindow(QMainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, self.dockControlPanel)
         self.dockControlPanel.setWidget(self.controlPanel)
         self.dockControlPanel.showMinimized()
-        self.resizeDocks([self.dockControlPanel, self.dockFeatureSel], \
+        self.resizeDocks([self.dockControlPanel, self.dockFeatureDisp], \
                 [1,10], Qt.Vertical)
         # reference image and SR image
         # self.dockRefViewer = QDockWidget("Reference", self)
@@ -201,14 +203,14 @@ class mainWindow(QMainWindow):
         self.controlPanel.btnLoad.clicked.connect(self.actLoadStudy)
         self.controlPanel.btnROI.clicked.connect(self.actLoadROI)
         self.controlPanel.btnExt.clicked.connect(self.actFeatureExt)
-        self.controlPanel.btnSel.clicked.connect(self.actFeatureSel)
+        self.controlPanel.btnSel.clicked.connect(self.child_stat.show)
         # self.controlPanel.btnCla.clicked.connect(self.actGetGrade)
         # self.controlPanel.btnSeg.clicked.connect(self.actGetSeg)
         # self.controlPanel.btnRef.clicked.connect(self.actGetReference)
         # self.controlPanel.btnSR.clicked.connect(self.actGetSR)
         #self.volumeViewer.sliderIndex.valueChanged.connect( \
         #        lambda x: self.refViewer.setIndex(x-1))
-        self.FeatureSel.cellPressed.connect( \
+        self.FeatureDisp.cellPressed.connect( \
                 lambda row, col: self.volumeViewer.sliderIndex.setValue(row+1))
 
     @pyqtSlot()
@@ -307,18 +309,28 @@ class mainWindow(QMainWindow):
 
         return
 
-    def actFeatureSel(self):
-        start = time.time()
-        self.statusBar().showMessage('Extracting Feature...')
-        try:
-            feature_selected = self.main.featureSel()
-        except Exception as err:
-            msgBox = QMessageBox(self)
-            msgBox.setText(str(type(err)) + str(err))
-            msgBox.exec()
-            self.statusBar().showMessage( \
-                    'Ready ({:.2f}s)'.format(time.time() - start))
-            return
+    # def actFeatureSel(self):
+    #     start = time.time()
+    #     self.statusBar().showMessage('Statistical Analyzing...')
+    #     directory = QFileDialog.getOpenFileName(self,
+    #                                          "Select the feature folder",
+    #                                          "./",
+    #                                          "Files (*.nii *.dcm)")
+    #     print(directory)
+    #     directory = str(directory[0])
+    #     try:
+    #         feature_selected = self.main.featureSel()
+    #     except Exception as err:
+    #         msgBox = QMessageBox(self)
+    #         msgBox.setText(str(type(err)) + str(err))
+    #         msgBox.exec()
+    #         self.statusBar().showMessage( \
+    #                 'Ready ({:.2f}s)'.format(time.time() - start))
+    #         return
+    #     msgBox = QMessageBox(self)
+    #     if feature_selected is True:
+    #         msgBox.setText('Done! Please check the folder.')
+    #     return
 
 
     @pyqtSlot()

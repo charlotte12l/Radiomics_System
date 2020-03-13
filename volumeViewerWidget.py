@@ -345,14 +345,16 @@ if __name__ == '__main__':
     import sys, os, time
     from PyQt5.QtWidgets import QApplication
     from ReadSagittalPD import ReadSagittalPDs
-    dicomPath='/mnt/repo/privateData/cartilage_origin/FromXuhua/PD/A102747075'
+    # dicomPath='/mnt/repo/privateData/cartilage_origin/FromXuhua/PD/A102747075'
     #dicomPath=sys.argv[1]
-    image = ReadSagittalPDs(dicomPath)[0]
-    label = sitk.ReadImage('/mnt/workspace/cartilage/PDxuhua/predict/A102747075.nii.gz')
-    flipped = sitk.Flip(label, (False, False, True), True)
-    flipped = sitk.GetImageFromArray(\
-            (sitk.GetArrayFromImage(label)[:,::-1,:]).astype(np.uint8))
-    flipped.CopyInformation(label)
+    image = sitk.ReadImage('B2_CESAG.dcm.nii')
+    # image = sitk.GetArrayFromImage(image)
+    #image = ReadSagittalPDs(dicomPath)[0]
+    # label = sitk.ReadImage('')
+    # flipped = sitk.Flip(label, (False, False, True), True)
+    # flipped = sitk.GetImageFromArray(\
+    #         (sitk.GetArrayFromImage(label)[:,::-1,:]).astype(np.uint8))
+    # flipped.CopyInformation(label)
     app = QApplication(sys.argv)
     ex = volumeSliceViewerWidget()
     #ex = volumeViewerWidget(colormap = cv2.COLORMAP_SPRING)
@@ -364,5 +366,5 @@ if __name__ == '__main__':
     time.sleep(1)
     ex.setImage(image)
     time.sleep(1)
-    ex.setLabel(flipped)
+    #ex.setLabel(flipped)
     sys.exit(app.exec_())

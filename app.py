@@ -34,7 +34,7 @@ if __name__ == '__main__':
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 
     QCoreApplication.setApplicationName( \
-            "Cartilage Evaluation System")
+            "Radiomics System")
     QCoreApplication.setOrganizationName( \
             "MIC@SJTU")
 

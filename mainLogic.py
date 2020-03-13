@@ -33,6 +33,7 @@ class mainLogic(object):
             return False
         self.__image = image
         self.__feature_extracted = None
+        self.__feature_selected = None
         # self.__seg = None
         # self.__grade = None
         # self.__superResolution = None
@@ -44,6 +45,7 @@ class mainLogic(object):
             return False
         self.__ROI = ROI
         self.__feature_extracted = None
+        self.__feature_selected = None
         # self.__grade = None
         # self.__superResolution = None
         # self.__thickness = None
@@ -57,6 +59,15 @@ class mainLogic(object):
         feature_extracted = self.featureExt(self.__image,self.__ROI)
         self.__feature_extracted = feature_extracted
         return feature_extracted
+
+    def selFeature(self):
+        assert self.__image is not None, 'No image loaded'
+        assert self.__ROI is not None, 'No ROI loaded'
+        if self.__feature_selected is not None:
+            return self.__feature_selected
+        feature_selected = self.featureSel(self.__image,self.__ROI)
+        self.__feature_selected = feature_selected
+        return feature_selected
 
     def getSeg(self):
         assert self.__image is not None, 'No image loaded'
