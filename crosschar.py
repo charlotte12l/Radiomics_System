@@ -2,7 +2,57 @@ import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui, QtCore
 from pyqtgraph.Point import Point
+import SimpleITK as sitk
 
+pg.setConfigOptions(imageAxisOrder='row-major')
+
+app = QtGui.QApplication([])
+
+## Create window with ImageView widget
+win = QtGui.QMainWindow()
+win.resize(800,800)
+imv = pg.ImageView()
+win.setCentralWidget(imv)
+win.show()
+win.setWindowTitle('pyqtgraph example: ImageView')
+
+data = sitk.ReadImage('B2_CESAG.dcm.nii')
+data = sitk.GetArrayFromImage(data)
+
+## Display the data and assign each frame a time value from 1.0 to 3.0
+imv.setImage(data, xvals=np.linspace(1., 3., data.shape[0]))
+vLine = pg.InfiniteLine(angle=90, movable=False)
+hLine = pg.InfiniteLine(angle=0, movable=False)\
+imv.addItem(vLine, ignoreBounds=True)
+imv.addItem(hLine, ignoreBounds=True)
+
+def mouseMoved(evt):
+    pos = evt[0]  ## using signal proxy turns original arguments into a tuple
+
+    mousePoint = vb.mapSceneToView(pos)
+    # index = int(mousePoint.x())
+    # if index > 0 and index < len(data1):
+    #     label.setText("<span style='font-size: 12pt'>x=%0.1f,   <span style='color: red'>y1=%0.1f</span>,   <span style='color: green'>y2=%0.1f</span>" % (mousePoint.x(), data1[index], data2[index]))
+    vLine.setPos(mousePoint.x())
+    hLine.setPos(mousePoint.y())
+## Set a custom color map
+colors = [
+    (0, 0, 0),
+    (45, 5, 61),
+    (84, 42, 55),
+    (150, 87, 60),
+    (208, 171, 141),
+    (255, 255, 255)
+]
+cmap = pg.ColorMap(pos=np.linspace(0.0, 1.0, 6), color=colors)
+imv.setColorMap(cmap)
+
+## Start Qt event loop unless running in interactive mode.
+if __name__ == '__main__':
+    import sys
+    if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
+        QtGui.QApplication.instance().exec_()
+'''
 #generate layout
 app = QtGui.QApplication([])
 win = pg.GraphicsWindow()
@@ -77,3 +127,5 @@ if __name__ == '__main__':
     import sys
     if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
         QtGui.QApplication.instance().exec_()
+        
+'''
