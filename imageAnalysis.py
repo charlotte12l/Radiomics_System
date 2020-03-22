@@ -127,8 +127,8 @@ def mouseCliked(ev):
 
             sagittal = np.flipud(npa[cur_z, :, :])
             coronal = np.fliplr(np.rot90(npa[:, :, cur_x], 1))
-            img_s.setImage(sagittal)
-            img_c.setImage(coronal)
+            # img_s.setImage(sagittal)
+            # img_c.setImage(coronal)
 
             vLine_s.setPos(cur_x)
             hLine_s.setPos(y-cur_y)

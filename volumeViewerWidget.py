@@ -8,6 +8,8 @@ from PyQt5.QtCore import Qt, pyqtSlot, QPoint
 import numpy as np
 import SimpleITK as sitk
 import cv2
+import pyqtgraph as pg
+from pyqtgraph.Qt import QtCore, QtGui
 
 
 class scalableLabel(QScrollArea):
@@ -80,7 +82,7 @@ class scalableLabel(QScrollArea):
             super(scalableLabel, self).mouseReleaseEvent(event)
 
 
-class volumeSliceViewerWidget(scalableLabel):
+class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
     defaultLabelColormap = np.array([ \
             [0  ,0  ,0  ], \
             [0  ,0  ,255], \
@@ -101,12 +103,61 @@ class volumeSliceViewerWidget(scalableLabel):
         image: sitk.Image, 3D image only
         window: if None, will be set to [minPixel, maxPixel]
         '''
-        super(volumeSliceViewerWidget, self).__init__(parent)
-        # widget components
-        #self.labelSlice = AspectRatioPixmapLabel(self)
-        # init variables
-        #assert dim in [0,1,2], "dim="+str(dim)+"is not valid for 3D image"
-        #self.__dim = dim
+        # super(volumeSliceViewerWidget, self).__init__(parent=parent)
+        pg.GraphicsWindow.__init__(self)
+        pg.setConfigOptions(imageAxisOrder='row-major')
+        # pg.mkQApp()
+
+        # self.win = pg.GraphicsLayoutWidget()
+        self.setWindowTitle('pyqtgraph example: Image Analysis')
+
+        print('1')
+        self.p_a = self.addPlot(row=0, col=0)
+        # self.p_a.hideAxis('bottom')
+        # self.p_a.hideAxis('left')
+
+        self.p_s = self.addPlot(row=0, col=1)
+        # self.p_s.hideAxis('bottom')
+        # self.p_s.hideAxis('left')
+
+        self.p_c = self.addPlot(row=1, col=1)
+        # self.p_c.hideAxis('bottom')
+        # self.p_c.hideAxis('left')
+
+        # Item for displaying image data
+        print('2')
+        self.img_s = pg.ImageItem()
+        self.img_a = pg.ImageItem()
+        self.img_c = pg.ImageItem()
+        self.p_s.addItem(self.img_s)
+        self.p_a.addItem(self.img_a)
+        self.p_c.addItem(self.img_c)
+
+        # self.win.resize(800, 800)
+        # self.win.show()
+
+        print('3')
+        self.label = pg.LabelItem(justify='right')
+        # self.win.addItem(self.label)
+        self.addItem(self.label)
+
+        print('4')
+        self.vLine_a = pg.InfiniteLine(angle=90, movable=False)
+        self.hLine_a = pg.InfiniteLine(angle=0, movable=False)
+        self.p_a.addItem(self.vLine_a, ignoreBounds=True)
+        self.p_a.addItem(self.hLine_a, ignoreBounds=True)
+
+        self.vLine_s = pg.InfiniteLine(angle=90, movable=False)
+        self.hLine_s = pg.InfiniteLine(angle=0, movable=False)
+        self.p_s.addItem(self.vLine_s, ignoreBounds=True)
+        self.p_s.addItem(self.hLine_s, ignoreBounds=True)
+
+        self.vLine_c = pg.InfiniteLine(angle=90, movable=False)
+        self.hLine_c = pg.InfiniteLine(angle=0, movable=False)
+        self.p_c.addItem(self.vLine_c, ignoreBounds=True)
+        self.p_c.addItem(self.hLine_c, ignoreBounds=True)
+
+        print('5')
         self.__colormap = colormap
         if labelColormap is None:
             labelColormap = self.defaultLabelColormap
@@ -114,21 +165,137 @@ class volumeSliceViewerWidget(scalableLabel):
         # vars updated in setWindow
         self.__window = [None, None]
         # vars updated in setImage
-        self.__image = None
-        self.__imageArray = None
-        self.__labelArray = None
+        self.__image = sitk.ReadImage('B2_CESAG.dcm.nii')
+        # self.__imageArray = None
+        # self.__labelArray = None
+        # self.__z,self.__y, self.__x = None,None,None
+        # self.__cur_z,self.__cur_y,self.__cur_x = None,None,None
+        # self.__sagittal,self.__axial, self.__coronal = None,None,None
+
+        print('6')
+        self.proxy_a = pg.SignalProxy(self.p_a.scene().sigMouseClicked, rateLimit=60, slot=self.mouseCliked)
+        # zoom to fit imageo
+        # p_a.autoRange()
+        # self.p_a.disableAutoRange()
+        self.p_a.setAspectLocked(lock=True, ratio=4)
+
+        self.proxy_c = pg.SignalProxy(self.p_c.scene().sigMouseClicked, rateLimit=60, slot=self.mouseCliked)
+        self.p_c.setAspectLocked(lock=True, ratio=4)
+        # self.p_c.autoRange()
+
+        self.proxy_s = pg.SignalProxy(self.p_s.scene().sigMouseClicked, rateLimit=60, slot=self.mouseCliked)
+        # zoom to fit imageo
+        # self.p_s.autoRange()
+
         # vars updated in setIndex
-        self.__index = 0
+        # self.__index = 0
         # vars updated in setOpacity
+        print('7')
         self.__opacity = 1
         # execute param
         self.setWindow(window)
+        # if image is not None:
+        # self.__imageArray = sitk.GetArrayFromImage(self.__image)
+        # self.__z, self.__y, self.__x = np.shape(self.__imageArray)
+        # self.__cur_z = self.__z // 2
+        # self.__cur_x = self.__x // 2
+        # self.__cur_y = self.__y // 2
+        #
+        # self.__sagittal = np.flipud(self.__imageArray[self.__z // 2, :, :])
+        # self.__axial = np.fliplr(np.rot90(self.__imageArray[:, self.__y // 2, :], 1))
+        # self.__coronal = np.fliplr(np.rot90(self.__imageArray[:, :, self.__x // 2], 1))
+        #
+        # self.img_s.setImage(self.__sagittal)
+        # self.img_a.setImage(self.__axial)
+        # self.img_c.setImage(self.__coronal)
+        #
+        # self.p_s.autoRange()
+        # self.p_a.autoRange()
+        # self.p_c.autoRange()
+
         if image is not None:
             self.setImage(image)
-            self.setIndex(index)
-            if label is not None:
-                self.setOpacity(opacity)
-                self.setLabel(label)
+            # self.setIndex(index)
+            # if label is not None:
+            #     self.setOpacity(opacity)
+            #     self.setLabel(label)
+
+    def mouseCliked(self, ev):
+        # print(ev)
+        # global cur_x, cur_y, cur_z, sagittal, coronal, axial
+        pos = ev[0].scenePos()
+        # print('clicked:',pos)
+        # itemBoundingRect
+        # if p_a.sceneBoundingRect().contains(pos):
+        if self.p_a.sceneBoundingRect().contains(pos) and (self.__imageArray is not None):
+            mousePoint = self.p_a.vb.mapSceneToView(pos)
+            print(mousePoint)
+            if 0 <= mousePoint.x() < 32 and 0 <= mousePoint.y() < 352:
+                self.vLine_a.setPos(mousePoint.x())
+                self.hLine_a.setPos(mousePoint.y())
+
+                self.__cur_z = int(self.__z - mousePoint.x() + 0.5)
+                self.__cur_x = int(self.__x - mousePoint.y() + 0.5)
+
+                self.__sagittal = np.flipud(self.__imageArray[self.__cur_z, :, :])
+                self.__coronal = np.fliplr(np.rot90(self.__imageArray[:, :, self.__cur_x], 1))
+                self.img_s.setImage(self.__sagittal)
+                self.img_c.setImage(self.__coronal)
+
+                self.vLine_s.setPos(self.__cur_x)
+                self.hLine_s.setPos(self.__y - self.__cur_y)
+                self.vLine_c.setPos(self.__z - self.__cur_z)
+                self.hLine_c.setPos(self.__y - self.__cur_y)
+
+                self.label.setText(
+                    "<span style='font-size: 12pt'>x=%d,   <span style='font-size: 12pt'>y=%d</span>, <span style='font-size: 12pt'>z=%d " % (
+                        self.__cur_x, self.__cur_y, self.__cur_z))
+            # ev.accept()
+        if self.p_s.sceneBoundingRect().contains(pos)and (self.__imageArray is not None):
+            mousePoint = self.p_s.vb.mapSceneToView(pos)
+            self.vLine_s.setPos(mousePoint.x())
+            self.hLine_s.setPos(mousePoint.y())
+
+            self.__cur_x = int(mousePoint.x() + 0.5)
+            self.__cur_y = int(self.__y - mousePoint.y() + 0.5)
+
+            self.__axial = np.fliplr(np.rot90(self.__imageArray[:, self.__cur_y, :], 1))
+            self.__coronal = np.fliplr(np.rot90(self.__imageArray[:, :, self.__cur_x], 1))
+
+            self.img_a.setImage(self.__axial)
+            self.img_c.setImage(self.__coronal)
+
+            self.vLine_a.setPos(self.__z - self.__cur_z)
+            self.hLine_a.setPos(self.__x - self.__cur_x)
+            self.vLine_c.setPos(self.__z - self.__cur_z)
+            self.hLine_c.setPos(self.__y - self.__cur_y)
+
+            self.label.setText(
+                "<span style='font-size: 12pt'>x=%d,   <span style='font-size: 12pt'>y=%d</span>, <span style='font-size: 12pt'>z=%d " % (
+                    self.__cur_x, self.__cur_y, self.__cur_z))
+        #
+        if self.p_c.sceneBoundingRect().contains(pos)and (self.__imageArray is not None):
+            mousePoint = self.p_c.vb.mapSceneToView(pos)
+            self.vLine_c.setPos(mousePoint.x())
+            self.hLine_c.setPos(mousePoint.y())
+
+            self.__cur_z = int(self.__z - mousePoint.x() + 0.5)
+            self.__cur_y = int(self.__y - mousePoint.y() + 0.5)
+
+            self.__axial = np.fliplr(np.rot90(self.__imageArray[:, self.__cur_y, :], 1))
+            self.__sagittal = np.flipud(self.__imageArray[self.__cur_z, :, :])
+
+            self.img_a.setImage(self.__axial)
+            self.img_s.setImage(self.__sagittal)
+
+            self.vLine_a.setPos(self.__z - self.__cur_z)
+            self.hLine_a.setPos(self.__x - self.__cur_x)
+            self.vLine_s.setPos(self.__cur_x)
+            self.hLine_s.setPos(self.__y - self.__cur_y)
+
+            self.label.setText(
+                "<span style='font-size: 12pt'>x=%d,   <span style='font-size: 12pt'>y=%d</span>, <span style='font-size: 12pt'>z=%d " % (
+                    self.__cur_x, self.__cur_y, self.__cur_z))
 
     def setImage(self, image):
         assert image.GetDimension() == 3, "accepts 3D image only"
@@ -136,53 +303,64 @@ class volumeSliceViewerWidget(scalableLabel):
         self.__label = None
         self.__index = 0
         self.__updateImageArray()
-        self.__updateLabelArray()
-        self.__updatePixmap()
+        # self.__updateLabelArray()
+        # self.__updatePixmap()
 
-    def setLabel(self, label):
-        if self.__image is None:
-            return
-        assert label.GetSize() == self.__image.GetSize()
-        self.__label = label
-        self.__updateLabelArray()
-        self.__updatePixmap()
+        self.img_s.setImage(self.__sagittal)
+        self.img_a.setImage(self.__axial)
+        self.img_c.setImage(self.__coronal)
+        self.p_s.autoRange()
+        self.p_a.autoRange()
+        self.p_c.autoRange()
+        self.label.setText(
+            "<span style='font-size: 12pt'>x=%d,   <span style='font-size: 12pt'>y=%d</span>, <span style='font-size: 12pt'>z=%d " % (
+                self.__cur_x, self.__cur_y, self.__cur_z))
+        # print('setImage:',np.shape(self.__axial),np.unique(self.__axial))
 
-    def setIndex(self, index):
-        if self.__image is None:
-            return
-        index = int(index)
-        assert index >= 0 and index < self.__image.GetDepth(), \
-                "index ("+str(index)+") out of range"
-        self.__index=index
-        self.__updatePixmap()
+    # def setLabel(self, label):
+    #     if self.__image is None:
+    #         return
+    #     assert label.GetSize() == self.__image.GetSize()
+    #     self.__label = label
+    #     self.__updateLabelArray()
+    #     self.__updatePixmap()
 
-    def setOpacity(self, opacity):
-        assert opacity >=0 and opacity <=1, "opacity out of range"
-        self.__opacity = opacity
-        if self.__image is None or self.__label is None:
-            return
-        self.__updatePixmap()
+    # def setIndex(self, index):
+    #     if self.__image is None:
+    #         return
+    #     index = int(index)
+    #     assert index >= 0 and index < self.__image.GetDepth(), \
+    #             "index ("+str(index)+") out of range"
+    #     self.__index=index
+    #     self.__updatePixmap()
+
+    # def setOpacity(self, opacity):
+    #     assert opacity >=0 and opacity <=1, "opacity out of range"
+    #     self.__opacity = opacity
+    #     if self.__image is None or self.__label is None:
+    #         return
+        # self.__updatePixmap()
 
     def setWindow(self, window):
         self.__window = window
         if self.__image is None:
             return
         self.__updateImageArray()
-        self.__updatePixmap()
+        # self.__updatePixmap()
 
-    def setColormap(self, colormap):
-        self.__colormap = colormap
-        if self.__image is None:
-            return
-        self.__updatePixmap()
-
-    def setLabelColormap(self, labelColormap):
-        if labelColormap is None:
-            labelColormap = self.defaultLabelColormap
-        self.__labelColormap = labelColormap
-        if self.__image is None or self.__label is None:
-            return
-        self.__updatePixmap()
+    # def setColormap(self, colormap):
+    #     self.__colormap = colormap
+    #     if self.__image is None:
+    #         return
+    #     # self.__updatePixmap()
+    #
+    # def setLabelColormap(self, labelColormap):
+    #     if labelColormap is None:
+    #         labelColormap = self.defaultLabelColormap
+    #     self.__labelColormap = labelColormap
+    #     if self.__image is None or self.__label is None:
+    #         return
+        # self.__updatePixmap()
 
     def __updateImageArray(self):
         array = sitk.GetArrayFromImage(self.__image)
@@ -197,44 +375,54 @@ class volumeSliceViewerWidget(scalableLabel):
         self.__imageArray = np.clip( \
                 (array - np.float32(minVal))/np.float32(maxVal-minVal), 0, 1)
         self.__imageArray = (255*self.__imageArray).astype(np.uint8)
+        self.__z,self.__y,self.__x = np.shape(self.__imageArray)
+        self.__cur_z = self.__z // 2
+        self.__cur_x = self.__x // 2
+        self.__cur_y = self.__y // 2
 
-    def __updateLabelArray(self):
-        if self.__label is None:
-            self.__labelArray = None
-        else:
-            array = sitk.GetArrayFromImage(self.__label)
-            self.__labelArray = array.astype(np.uint8)
+        self.__sagittal = np.flipud(self.__imageArray[self.__z // 2, :, :])
+        self.__axial = np.fliplr(np.rot90(self.__imageArray[:, self.__y // 2, :], 1))
+        self.__coronal = np.fliplr(np.rot90(self.__imageArray[:, :, self.__x // 2], 1))
+        # print(self.__z,self.__y,self.__x )
+        # print(np.shape(self.__sagittal),np.unique(self.__sagittal))
+
+    # def __updateLabelArray(self):
+    #     if self.__label is None:
+    #         self.__labelArray = None
+    #     else:
+    #         array = sitk.GetArrayFromImage(self.__label)
+    #         self.__labelArray = array.astype(np.uint8)
             #minVal = array.min()
             #maxVal = array.max()
             #self.__labelArray = (array - np.float32(minVal))/np.float32(maxVal-minVal)
             #self.__labelArray = (255*self.__labelArray).astype(np.uint8)
 
-    def __updatePixmap(self):
-        image = self.__imageArray[self.__index,:,:]
-        if self.__colormap is None:
-            image = np.stack([image, image, image], axis=-1)
-        else:
-            image = cv2.applyColorMap(image, self.__colormap)
-        if self.__labelArray is not None:
-            label = self.__labelArray[self.__index,:,:]
-            if self.__labelColormap.shape[-1] == 4:
-                alphaMap = self.__labelColormap[:,:,-1].reshape(256,1,1)
-            else:
-                alphaMap = np.array([0]+[255]*255, \
-                        dtype=np.uint8).reshape(256,1,1)
-            labelColormap = self.__labelColormap[:,:,0:3]
-            alpha = cv2.applyColorMap(label, alphaMap).astype(np.float32)/255
-            alpha = alpha * self.__opacity
-            label = cv2.applyColorMap(label, labelColormap).astype(np.float32)
-            array = image*(1-alpha)+label*alpha
-            array = array.astype(np.uint8)
-        else:
-            array = image
-        array = array[:,:,::-1]
-        img = QImage(array.copy().data, \
-                array.shape[1], array.shape[0], QImage.Format_RGB888)
-        pixmap = QPixmap.fromImage(img)
-        self.setPixmap(pixmap)
+    # def __updatePixmap(self):
+    #     image = self.__imageArray[self.__index,:,:]
+    #     if self.__colormap is None:
+    #         image = np.stack([image, image, image], axis=-1)
+    #     else:
+    #         image = cv2.applyColorMap(image, self.__colormap)
+    #     if self.__labelArray is not None:
+    #         label = self.__labelArray[self.__index,:,:]
+    #         if self.__labelColormap.shape[-1] == 4:
+    #             alphaMap = self.__labelColormap[:,:,-1].reshape(256,1,1)
+    #         else:
+    #             alphaMap = np.array([0]+[255]*255, \
+    #                     dtype=np.uint8).reshape(256,1,1)
+    #         labelColormap = self.__labelColormap[:,:,0:3]
+    #         alpha = cv2.applyColorMap(label, alphaMap).astype(np.float32)/255
+    #         alpha = alpha * self.__opacity
+    #         label = cv2.applyColorMap(label, labelColormap).astype(np.float32)
+    #         array = image*(1-alpha)+label*alpha
+    #         array = array.astype(np.uint8)
+    #     else:
+    #         array = image
+    #     array = array[:,:,::-1]
+        # img = QImage(array.copy().data, \
+        #         array.shape[1], array.shape[0], QImage.Format_RGB888)
+        # pixmap = QPixmap.fromImage(img)
+        # self.setPixmap(pixmap)
 
 class SliderWithTextWidget(QWidget):
     def __init__(self, parent=None, text=None):
@@ -316,17 +504,6 @@ class volumeViewerWidget(QWidget):
         self.viewerSlice.setLabel(label)
         self.sliderOpacity.show()
 
-    def mouseMoved(evt):
-        pos = evt[0]  ## using signal proxy turns original arguments into a tuple
-        if p1.sceneBoundingRect().contains(pos):
-            mousePoint = vb.mapSceneToView(pos)
-            index = int(mousePoint.x())
-            if index > 0 and index < len(data1):
-                label.setText(
-                    "<span style='font-size: 12pt'>x=%0.1f,   <span style='color: red'>y1=%0.1f</span>,   <span style='color: green'>y2=%0.1f</span>" % (
-                    mousePoint.x(), data1[index], data2[index]))
-            vLine.setPos(mousePoint.x())
-            hLine.setPos(mousePoint.y())
 
     def mousePressEvent(self, event):
         if (event.button() == Qt.RightButton):
@@ -366,16 +543,27 @@ if __name__ == '__main__':
     # flipped = sitk.GetImageFromArray(\
     #         (sitk.GetArrayFromImage(label)[:,::-1,:]).astype(np.uint8))
     # flipped.CopyInformation(label)
+    # app = QApplication(sys.argv)
+    # ex = volumeSliceViewerWidget()
+    # #ex = volumeViewerWidget(colormap = cv2.COLORMAP_SPRING)
+    # # ex = volumeViewerWidget()
+    # #ex = SliderWithTextWidget(text="TEXT")
+    # # ex.setGeometry(300, 300, 600, 600)
+    # # ex.setWindowTitle('volumeViewerWidget')
+    # ex.show()
+    # time.sleep(1)
+    # ex.setImage(image)
+    # time.sleep(1)
+    # #ex.setLabel(flipped)
+    # sys.exit(app.exec_())
+
     app = QApplication(sys.argv)
-    ex = volumeSliceViewerWidget()
-    #ex = volumeViewerWidget(colormap = cv2.COLORMAP_SPRING)
-    ex = volumeViewerWidget()
-    #ex = SliderWithTextWidget(text="TEXT")
-    ex.setGeometry(300, 300, 600, 600)
-    ex.setWindowTitle('volumeViewerWidget')
-    ex.show()
-    time.sleep(1)
-    ex.setImage(image)
-    time.sleep(1)
-    #ex.setLabel(flipped)
-    sys.exit(app.exec_())
+    app.setStyle(QtGui.QStyleFactory.create("Cleanlooks"))
+
+    image_widget = volumeViewerWidget()
+    image_widget.show()
+    image_widget.setImage(image)
+
+    import sys
+    if (sys.flags.interactive != 1) or not hasattr(QtCore,     'PYQT_VERSION'):
+        QtGui.QApplication.instance().exec_()
