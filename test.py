@@ -1,17 +1,22 @@
 import SimpleITK as sitk
 import numpy as np
 
-image = sitk.ReadImage('B2_CESAG.dcm.nii')
+img = sitk.ReadImage('B2_Label.nii')
 npa = sitk.GetArrayFromImage(img)
-
 print(np.shape(npa))
+print(np.unique(npa))
 
-resample = sitk.ResampleImageFilter()
-resample.SetOutputDirection(image.GetDirection())
-resample.SetOutputOrigin(image.GetOrigin())
-newspacing = [1, 1, 1]
-resample.SetOutputSpacing(newspacing)
-newimage = resample.Execute(image)
+a = npa[15, :, :]
+
+print(np.shape(a))
+print(np.unique(a))
+
+# resample = sitk.ResampleImageFilter()
+# resample.SetOutputDirection(image.GetDirection())
+# resample.SetOutputOrigin(image.GetOrigin())
+# newspacing = [1, 1, 1]
+# resample.SetOutputSpacing(newspacing)
+# newimage = resample.Execute(image)
 '''
 import numpy as np
 import pyqtgraph as pg
