@@ -142,9 +142,10 @@ class statAnalyzeWidget(QDialog):
         msgBox = QMessageBox(self)
         if flag is True:
             msgBox.setText('Done! Please check the folder.')
-            print('2')
+            # print('2')
 
         self.accept()
+        return
     #def quit(self):
 
 

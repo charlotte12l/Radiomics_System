@@ -20,6 +20,7 @@ from PyQt5.QtCore import Qt, pyqtSlot, QSize
 from volumeViewerWidget import volumeViewerWidget, volumeSliceViewerWidget
 from featureDispWidget import featureDispWidget
 from statAnalyzelWidget import statAnalyzeWidget
+from clsABWidget import clsABWidget
 from gradeDispWidget import gradeDispWidget
 from curveWidget import curveWidget
 
@@ -96,6 +97,8 @@ class mainWindow(QMainWindow):
         self.__image = None # SimpleITK.Image
         self.__grade = None # Numpy array with shape [num_slice, num_class]
         self.child_stat = statAnalyzeWidget()
+        self.cls_SVC = clsABWidget(ifSVC=True)
+        self.cls_Logi = clsABWidget(ifSVC=False)
         self.statusBar().showMessage('Initializing UI...')
         self.initUI()
         self.statusBar().showMessage('Initializing Core...')
@@ -123,8 +126,16 @@ class mainWindow(QMainWindow):
         self.show()
 
     def initUI_Menubar(self):
+        LogiRegAct = QAction('Logit Regression', self)
+        LogiRegAct.triggered.connect(self.cls_Logi.show)
+
+        SVCAct = QAction('Support Vector Classification', self)
+        SVCAct.triggered.connect(self.cls_SVC.show)
+
         menubar = self.menuBar()
-        #fileMenu = menubar.addMenu('File')
+        fileMenu = menubar.addMenu('Classification')
+        fileMenu.addAction(LogiRegAct)
+        fileMenu.addAction(SVCAct)
         #loadStudyAct = QAction('Load Dicom Study', self)
         #fileMenu.addAction(loadStudyAct)
         #exitAct = QAction('Quit', self)
@@ -204,6 +215,7 @@ class mainWindow(QMainWindow):
         self.controlPanel.btnROI.clicked.connect(self.actLoadROI)
         self.controlPanel.btnExt.clicked.connect(self.actFeatureExt)
         self.controlPanel.btnSel.clicked.connect(self.child_stat.show)
+
         # self.controlPanel.btnCla.clicked.connect(self.actGetGrade)
         # self.controlPanel.btnSeg.clicked.connect(self.actGetSeg)
         # self.controlPanel.btnRef.clicked.connect(self.actGetReference)
@@ -212,6 +224,15 @@ class mainWindow(QMainWindow):
         #        lambda x: self.refViewer.setIndex(x-1))
         self.FeatureDisp.cellPressed.connect( \
                 lambda row, col: self.volumeViewer.sliderIndex.setValue(row+1))
+
+    # def actLogiReg(self):
+    #     self.cls_Logi.show()
+    #
+    #     # self.controlPanel.btnSel.clicked.connect(self.child_cls.show)
+    #     pass
+
+    # def actSVC(self):
+    #     pass
 
     @pyqtSlot()
     def actLoadStudy(self, directory=None):

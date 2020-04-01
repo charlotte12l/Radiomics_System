@@ -11,7 +11,7 @@ import cv2
 
 
 class scalableLabel(QScrollArea):
-    scaleMin = 0.2
+    scaleMin = 0.0001
     scaleMax = 10
     wheelScale = 1/480.0
     def __init__(self, parent=None):

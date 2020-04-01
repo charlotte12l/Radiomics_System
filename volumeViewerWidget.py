@@ -13,9 +13,10 @@ from pyqtgraph.Qt import QtCore, QtGui
 
 
 class scalableLabel(QScrollArea):
-    scaleMin = 0.2
+    # scaleMin = 0.2
+    scaleMin = 0.1
     scaleMax = 10
-    wheelScale = 1/480.0
+    wheelScale = 1/200.0
     def __init__(self, parent=None):
         super(scalableLabel, self).__init__(parent)
         self.imageLabel = QLabel(parent)
@@ -111,21 +112,22 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
         # self.win = pg.GraphicsLayoutWidget()
         self.setWindowTitle('pyqtgraph example: Image Analysis')
 
-        print('1')
+        # print('1')
         self.p_a = self.addPlot(row=0, col=0)
-        # self.p_a.hideAxis('bottom')
-        # self.p_a.hideAxis('left')
+        # self.p_a.setAspectLocked()
+        self.p_a.hideAxis('bottom')
+        self.p_a.hideAxis('left')
 
         self.p_s = self.addPlot(row=0, col=1)
-        # self.p_s.hideAxis('bottom')
-        # self.p_s.hideAxis('left')
+        self.p_s.hideAxis('bottom')
+        self.p_s.hideAxis('left')
 
         self.p_c = self.addPlot(row=1, col=1)
-        # self.p_c.hideAxis('bottom')
-        # self.p_c.hideAxis('left')
+        self.p_c.hideAxis('bottom')
+        self.p_c.hideAxis('left')
 
         # Item for displaying image data
-        print('2')
+        # print('2')
         self.img_s = pg.ImageItem()
         self.img_a = pg.ImageItem()
         self.img_c = pg.ImageItem()
@@ -136,12 +138,12 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
         # self.win.resize(800, 800)
         # self.win.show()
 
-        print('3')
+        # print('3')
         self.label = pg.LabelItem(justify='right')
         # self.win.addItem(self.label)
         self.addItem(self.label)
 
-        print('4')
+        # print('4')
         self.vLine_a = pg.InfiniteLine(angle=90, movable=False)
         self.hLine_a = pg.InfiniteLine(angle=0, movable=False)
         self.p_a.addItem(self.vLine_a, ignoreBounds=True)
@@ -157,7 +159,7 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
         self.p_c.addItem(self.vLine_c, ignoreBounds=True)
         self.p_c.addItem(self.hLine_c, ignoreBounds=True)
 
-        print('5')
+        # print('5')
         self.__colormap = colormap
         if labelColormap is None:
             labelColormap = self.defaultLabelColormap
@@ -177,7 +179,7 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
         self.__sagittal_label, self.__axial_label, self.__coronal_label = None, None, None
         self.__sagittal_pix, self.__axial_pix, self.__coronal_pix = None, None, None
 
-        print('6')
+        # print('6')
         self.proxy_a = pg.SignalProxy(self.p_a.scene().sigMouseClicked, rateLimit=60, slot=self.mouseCliked)
         # zoom to fit imageo
         # p_a.autoRange()
@@ -195,28 +197,10 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
         # vars updated in setIndex
         # self.__index = 0
         # vars updated in setOpacity
-        print('7')
+        # print('7')
         self.__opacity = 1
         # execute param
         self.setWindow(window)
-        # if image is not None:
-        # self.__imageArray = sitk.GetArrayFromImage(self.__image)
-        # self.__z, self.__y, self.__x = np.shape(self.__imageArray)
-        # self.__cur_z = self.__z // 2
-        # self.__cur_x = self.__x // 2
-        # self.__cur_y = self.__y // 2
-        #
-        # self.__sagittal = np.flipud(self.__imageArray[self.__z // 2, :, :])
-        # self.__axial = np.fliplr(np.rot90(self.__imageArray[:, self.__y // 2, :], 1))
-        # self.__coronal = np.fliplr(np.rot90(self.__imageArray[:, :, self.__x // 2], 1))
-        #
-        # self.img_s.setImage(self.__sagittal)
-        # self.img_a.setImage(self.__axial)
-        # self.img_c.setImage(self.__coronal)
-        #
-        # self.p_s.autoRange()
-        # self.p_a.autoRange()
-        # self.p_c.autoRange()
 
         if image is not None:
             self.setImage(image)
@@ -235,7 +219,7 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
         if self.p_a.sceneBoundingRect().contains(pos) and (self.__imageArray is not None):
             mousePoint = self.p_a.vb.mapSceneToView(pos)
             # print(mousePoint)
-            if 0 <= mousePoint.x() < 32 and 0 <= mousePoint.y() < 352:
+            if 0 <= mousePoint.x() < self.__z and 0 <= mousePoint.y() < self.__x:
                 self.vLine_a.setPos(mousePoint.x())
                 self.hLine_a.setPos(mousePoint.y())
 
@@ -244,64 +228,67 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
 
                 self.__sagittal = np.flipud(self.__imageArray[self.__cur_z, :, :])
                 self.__coronal = np.fliplr(np.rot90(self.__imageArray[:, :, self.__cur_x], 1))
-                self.img_s.setImage(self.__sagittal)
-                self.img_c.setImage(self.__coronal)
+                # self.img_s.setImage(self.__sagittal)
+                # self.img_c.setImage(self.__coronal)
 
                 self.vLine_s.setPos(self.__cur_x)
                 self.hLine_s.setPos(self.__y - self.__cur_y)
                 self.vLine_c.setPos(self.__z - self.__cur_z)
                 self.hLine_c.setPos(self.__y - self.__cur_y)
 
-                self.label.setText(
-                    "<span style='font-size: 12pt'>x=%d,   <span style='font-size: 12pt'>y=%d</span>, <span style='font-size: 12pt'>z=%d " % (
-                        self.__cur_x, self.__cur_y, self.__cur_z))
+                # self.label.setText(
+                #     "<span style='font-size: 12pt'>x=%d,   <span style='font-size: 12pt'>y=%d</span>, <span style='font-size: 12pt'>z=%d " % (
+                #         self.__cur_x+1, self.__cur_y+1, self.__cur_z+1))
             # ev.accept()
         if self.p_s.sceneBoundingRect().contains(pos)and (self.__imageArray is not None):
             mousePoint = self.p_s.vb.mapSceneToView(pos)
-            self.vLine_s.setPos(mousePoint.x())
-            self.hLine_s.setPos(mousePoint.y())
+            if 0 <= mousePoint.x() < self.__x and 0 <= mousePoint.y() < self.__y:
 
-            self.__cur_x = int(mousePoint.x() + 0.5)
-            self.__cur_y = int(self.__y - mousePoint.y() + 0.5)
+                self.vLine_s.setPos(mousePoint.x())
+                self.hLine_s.setPos(mousePoint.y())
 
-            self.__axial = np.fliplr(np.rot90(self.__imageArray[:, self.__cur_y, :], 1))
-            self.__coronal = np.fliplr(np.rot90(self.__imageArray[:, :, self.__cur_x], 1))
+                self.__cur_x = int(mousePoint.x() + 0.5)
+                self.__cur_y = int(self.__y - mousePoint.y() + 0.5)
 
-            self.img_a.setImage(self.__axial)
-            self.img_c.setImage(self.__coronal)
+                self.__axial = np.fliplr(np.rot90(self.__imageArray[:, self.__cur_y, :], 1))
+                self.__coronal = np.fliplr(np.rot90(self.__imageArray[:, :, self.__cur_x], 1))
 
-            self.vLine_a.setPos(self.__z - self.__cur_z)
-            self.hLine_a.setPos(self.__x - self.__cur_x)
-            self.vLine_c.setPos(self.__z - self.__cur_z)
-            self.hLine_c.setPos(self.__y - self.__cur_y)
+                # self.img_a.setImage(self.__axial)
+                # self.img_c.setImage(self.__coronal)
 
-            self.label.setText(
-                "<span style='font-size: 12pt'>x=%d,   <span style='font-size: 12pt'>y=%d</span>, <span style='font-size: 12pt'>z=%d " % (
-                    self.__cur_x, self.__cur_y, self.__cur_z))
+                self.vLine_a.setPos(self.__z - self.__cur_z)
+                self.hLine_a.setPos(self.__x - self.__cur_x)
+                self.vLine_c.setPos(self.__z - self.__cur_z)
+                self.hLine_c.setPos(self.__y - self.__cur_y)
+
+                # self.label.setText(
+                #     "<span style='font-size: 12pt'>x=%d,   <span style='font-size: 12pt'>y=%d</span>, <span style='font-size: 12pt'>z=%d " % (
+                #         self.__cur_x+1, self.__cur_y+1, self.__cur_z+1))
         #
         if self.p_c.sceneBoundingRect().contains(pos)and (self.__imageArray is not None):
             mousePoint = self.p_c.vb.mapSceneToView(pos)
-            self.vLine_c.setPos(mousePoint.x())
-            self.hLine_c.setPos(mousePoint.y())
+            if 0 <= mousePoint.x() < self.__z and 0 <= mousePoint.y() < self.__y:
+                self.vLine_c.setPos(mousePoint.x())
+                self.hLine_c.setPos(mousePoint.y())
 
-            self.__cur_z = int(self.__z - mousePoint.x() + 0.5)
-            self.__cur_y = int(self.__y - mousePoint.y() + 0.5)
+                self.__cur_z = int(self.__z - mousePoint.x() + 0.5)
+                self.__cur_y = int(self.__y - mousePoint.y() + 0.5)
 
-            self.__axial = np.fliplr(np.rot90(self.__imageArray[:, self.__cur_y, :], 1))
-            self.__sagittal = np.flipud(self.__imageArray[self.__cur_z, :, :])
+                self.__axial = np.fliplr(np.rot90(self.__imageArray[:, self.__cur_y, :], 1))
+                self.__sagittal = np.flipud(self.__imageArray[self.__cur_z, :, :])
 
 
-            self.img_a.setImage(self.__axial)
-            self.img_s.setImage(self.__sagittal)
+                # self.img_a.setImage(self.__axial)
+                # self.img_s.setImage(self.__sagittal)
 
-            self.vLine_a.setPos(self.__z - self.__cur_z)
-            self.hLine_a.setPos(self.__x - self.__cur_x)
-            self.vLine_s.setPos(self.__cur_x)
-            self.hLine_s.setPos(self.__y - self.__cur_y)
+                self.vLine_a.setPos(self.__z - self.__cur_z)
+                self.hLine_a.setPos(self.__x - self.__cur_x)
+                self.vLine_s.setPos(self.__cur_x)
+                self.hLine_s.setPos(self.__y - self.__cur_y)
 
-            self.label.setText(
-                "<span style='font-size: 12pt'>x=%d,   <span style='font-size: 12pt'>y=%d</span>, <span style='font-size: 12pt'>z=%d " % (
-                    self.__cur_x, self.__cur_y, self.__cur_z))
+                # self.label.setText(
+                #     "<span style='font-size: 12pt'>x=%d,   <span style='font-size: 12pt'>y=%d</span>, <span style='font-size: 12pt'>z=%d " % (
+                #         self.__cur_x+1, self.__cur_y+1, self.__cur_z+1))
 
         self.__updateLabelArray()
         self.__updatePixmapS()
@@ -496,7 +483,7 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
         self.p_c.autoRange()
         self.label.setText(
             "<span style='font-size: 12pt'>x=%d,   <span style='font-size: 12pt'>y=%d</span>, <span style='font-size: 12pt'>z=%d " % (
-                self.__cur_x, self.__cur_y, self.__cur_z))
+                self.__cur_x+1, self.__cur_y+1, self.__cur_z+1))
     #     array = array[:,:,::-1]
         # img = QImage(array.copy().data, \
         #         array.shape[1], array.shape[0], QImage.Format_RGB888)
@@ -545,11 +532,11 @@ class volumeViewerWidget(QWidget):
     def __init__(self, parent=None, colormap=None):
         super(volumeViewerWidget, self).__init__(parent)
         self.sliderOpacity = SliderWithTextWidget(self, text='Opacity')
-        self.sliderIndex   = SliderWithTextWidget(self, text=' Slice ')
+        # self.sliderIndex   = SliderWithTextWidget(self, text=' Slice ')
         self.viewerSlice =  volumeSliceViewerWidget(self, colormap=colormap)
         vbox = QVBoxLayout(self)
         vbox.addWidget(self.viewerSlice, stretch=1)
-        vbox.addWidget(self.sliderIndex)
+        # vbox.addWidget(self.sliderIndex)
         vbox.addWidget(self.sliderOpacity)
 
         self.sliderOpacity.setMinimum(0)
@@ -561,8 +548,8 @@ class volumeViewerWidget(QWidget):
         self.__mouseRightPos = QPoint(0,0)
         self.__mouseRightIndex = 0
         
-        self.sliderIndex.valueChanged.connect(\
-                lambda x: self.viewerSlice.setIndex(x-1))
+        # self.sliderIndex.valueChanged.connect(\
+        #         lambda x: self.viewerSlice.setIndex(x-1))
         self.sliderOpacity.valueChanged.connect(\
                 lambda x: self.viewerSlice.setOpacity(x/self.opacityMax))
 
@@ -574,8 +561,8 @@ class volumeViewerWidget(QWidget):
                 (1 - self.displayPercentile)*100)
         self.viewerSlice.setImage(image)
         self.viewerSlice.setWindow([minVal, maxVal])
-        self.sliderIndex.setMinimum(1)
-        self.sliderIndex.setMaximum(imageArray.shape[0])
+        # self.sliderIndex.setMinimum(1)
+        # self.sliderIndex.setMaximum(imageArray.shape[0])
         self.sliderOpacity.hide()
 
     def setLabel(self, label):
@@ -588,7 +575,7 @@ class volumeViewerWidget(QWidget):
         if (event.button() == Qt.RightButton):
             self.__mouseRightPressing = True
             self.__mouseRightPressPos = event.pos()
-            self.__mouseRightIndex = self.sliderIndex.value()
+            # self.__mouseRightIndex = self.sliderIndex.value()
         else:
             super(volumeViewerWidget, self).mousePressEvent(event)
             
@@ -596,9 +583,9 @@ class volumeViewerWidget(QWidget):
         if self.__mouseRightPressing and (event.buttons() & Qt.RightButton):
             currentPos = event.pos()
             delta = currentPos - self.__mouseRightPressPos
-            self.sliderIndex.setValue( \
-                    round(delta.y()*self.indexMouseRightScale) + \
-                    self.__mouseRightIndex)
+            # self.sliderIndex.setValue( \
+            #         round(delta.y()*self.indexMouseRightScale) + \
+            #         self.__mouseRightIndex)
         else:
             super(volumeViewerWidget, self).mouseMoveEvent(event)
     

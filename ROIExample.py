@@ -45,7 +45,7 @@ v1a = w1.addViewBox(row=1, col=0, lockAspect=True)
 v1b = w1.addViewBox(row=2, col=0, lockAspect=True)
 img1a = pg.ImageItem(arr)
 v1a.addItem(img1a)
-img1b = pg.ImageItem()
+img1b = pg.ImageItem()## View ROI
 v1b.addItem(img1b)
 v1a.disableAutoRange('xy')
 v1b.disableAutoRange('xy')
