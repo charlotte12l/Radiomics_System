@@ -171,6 +171,8 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
 
         self.__image = None
         self.__label = None
+        self.__ROI = None
+        self.__ROIArray = None
         self.__imageArray = None
         self.__labelArray = None
         self.__z,self.__y, self.__x = None,None,None
@@ -299,6 +301,7 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
         assert image.GetDimension() == 3, "accepts 3D image only"
         self.__image = image
         self.__label = None
+        self.__ROI = None
         self.__index = 0
         self.__updateImageArray()
         self.__updateLabelArray()
@@ -318,6 +321,42 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
         self.__updatePixmapA()
         self.__updatePixmapC()
 
+    def setROI(self,ax = 's'):
+        if self.__image is None:
+            return
+        if ax =='s':
+            self.__ROIAx = ax
+            points =  np.array([[np.shape(self.__sagittal)[0]//4,np.shape(self.__sagittal)[1]//4],
+                                [np.shape(self.__sagittal)[0] // 4, np.shape(self.__sagittal)[1] // 2],
+                                [np.shape(self.__sagittal)[0] // 2, np.shape(self.__sagittal)[1] // 2]]
+                               )
+            self.__ROI = pg.PolyLineROI(points,closed=True)
+            self.p_s.addItem(self.__ROI)
+            cols, rows = self.__sagittal.shape
+            m = np.mgrid[:cols, :rows]
+            self.possx = m[0, :, :]  # make the x pos array
+            self.possy = m[1, :, :]  # make the y pos array
+            self.possx.shape = cols, rows
+            self.possy.shape = cols, rows
+            self.__ROIArray = np.zeros(self.__sagittal.shape)
+
+    def accROI(self):
+        if self.__ROI is None:
+            return
+        if self.__ROIAx=='s':
+            mpossx = self.__ROI.getArrayRegion(self.possx, self.p_s).astype(int)
+            mpossx = mpossx[np.nonzero(mpossx)]  # get the x pos from ROI
+            mpossy = self.__ROI.getArrayRegion(self.possy, self.p_s).astype(int)
+            mpossy = mpossy[np.nonzero(mpossy)]  # get the y pos from ROI
+            self.__ROIArray[mpossx, mpossy] = self.__sagittal[mpossx, mpossy]
+
+    def saveROI(self):
+        # to be implemented
+        pass
+
+    def clrROI(self):
+        if self.__ROIAx == 's':
+            self.p_s.removeItem(self.__ROI)
     # def setIndex(self, index):
     #     if self.__image is None:
     #         return

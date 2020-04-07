@@ -90,6 +90,20 @@ class controlPannelWidget(QWidget):
         # vbox.addWidget(self.btnRef)
         self.setLayout(vbox)
 
+class annotationPannelWidget(QWidget):
+    def __init__(self, parent=None):
+        super(annotationPannelWidget, self).__init__(parent)
+        self.btnDoAnn = QPushButton('Draw Polygon')
+        self.btnAccROI = QPushButton('Accept Drawing')
+        self.btnClrROI = QPushButton('Clear Drawing')
+        self.btnSaveROI = QPushButton('Save Drawing')
+
+        vbox = QVBoxLayout(self)
+        vbox.addWidget(self.btnDoAnn)
+        vbox.addWidget(self.btnAccROI)
+        vbox.addWidget(self.btnClrROI)
+        vbox.addWidget(self.btnSaveROI)
+        self.setLayout(vbox)
 
 class mainWindow(QMainWindow):
     def __init__(self):
@@ -153,6 +167,7 @@ class mainWindow(QMainWindow):
         self.FeatureDisp = featureDispWidget(self)
         #self.dicomInfo = dicomInfoWidget(self)
         self.controlPanel = controlPannelWidget(self)
+        self.annotationPanel = annotationPannelWidget(self)
         #self.FeatureSel = featureSelWidget(self)
         #self.gradeDisp = gradeDispWidget(self)
         # self.refViewer = curveWidget(self)
@@ -169,6 +184,14 @@ class mainWindow(QMainWindow):
         self.dockFeatureDisp.setObjectName("dockFeatureDisp")
         self.addDockWidget(Qt.RightDockWidgetArea, self.dockFeatureDisp)
         self.dockFeatureDisp.setWidget(self.FeatureDisp)
+
+        # Annoation
+        self.dockAnnotation = QDockWidget("Annotation Tools", self)
+        self.dockAnnotation.setObjectName("dockAnnotation")
+        self.addDockWidget(Qt.RightDockWidgetArea, self.dockAnnotation)
+        self.dockAnnotation.setWidget(self.annotationPanel)
+        self.tabifyDockWidget(self.dockAnnotation, self.dockFeatureDisp)
+
         # FeatureSelection
         # self.dockFeatureSel = QDockWidget("Selected Feature", self)
         # self.dockFeatureSel.setObjectName("dockFeatureSel")
@@ -233,6 +256,13 @@ class mainWindow(QMainWindow):
 
     # def actSVC(self):
     #     pass
+
+    def actDoAnn(self):
+        self.volumeViewer.setROI(ax = 's')
+        return
+
+    def actAccROI(self):
+        pass
 
     @pyqtSlot()
     def actLoadStudy(self, directory=None):

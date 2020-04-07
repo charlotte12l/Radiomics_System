@@ -38,7 +38,7 @@ img1a = pg.ImageItem(arr)
 v1a.addItem(img1a)
 v1a.autoRange()
 v1b = w.addPlot(row=1, col=0, lockAspect=True)
-img1b = pg.ImageItem(arr)## View ROI
+img1b = pg.ImageItem()## View ROI
 v1b.addItem(img1b)
 v1b.autoRange()
 
@@ -57,23 +57,26 @@ v1a.addItem(item)
 # getArrayRegion(data, img, axes=(0, 1), returnMappedCoords=True, **kwds)
 
 def update(ROI):
-    axes = (0, 1)
-    x_data,y_data = [],[]
+    # axes = (0, 1)
+    # x_data,y_data = [],[]
     # roi.getArrayRegion(self, data, img, axes=axes, fromBoundingRect=True, **kwds)
-    # sliced = ROI.getArrayRegion(arr, img1a, axes=(0, 1), fromBoundingRect=True)
-    mapped = ROI.getLocalHandlePositions()
-    for i in range(len(mapped)):
-        x_data.append(mapped[i][1].x())
-        y_data.append(mapped[i][1].y())
+    result = ROI.getArrayRegion(arr, img1a, axes=(0, 1))
+    # print(np.unique(result))
+    img1b.setImage(result)
+    # mapped = ROI.getLocalHandlePositions()
+    # for i in range(len(mapped)):
+    #     x_data.append(mapped[i][1].x())
+    #     y_data.append(mapped[i][1].y())
+
     # result, mapped = ROI.getArrayRegion(arr, img1a, axes=(0, 1), returnCoords =True)
-    print('data:',x_data,y_data)
-    x_data=np.array(x_data)
-    y_data = np.array(y_data)
-    path = pg.arrayToQPath(x_data.flatten(), y_data.flatten())
-    item = QtGui.QGraphicsPathItem(path)
-    item.setBrush(pg.mkBrush('r'))
-    v1a.addItem(item)
-    v1b.addItem(item)
+    # print('data:',x_data,y_data)
+    # x_data=np.array(x_data)
+    # y_data = np.array(y_data)
+    # path = pg.arrayToQPath(x_data.flatten(), y_data.flatten())
+    # item = QtGui.QGraphicsPathItem(path)
+    # item.setBrush(pg.mkBrush('r'))
+    # v1a.addItem(item)
+    # v1b.addItem(item)
     # print(mapped[0][1])
     # print('sliced:', np.shape(sliced))
     #
@@ -88,7 +91,7 @@ def update(ROI):
     # mask = mask.reshape(shape)
     #
     # img1b.setImage(sliced * mask, levels=(0, arr.max()))
-    # v1b.autoRange()
+    v1b.autoRange()
 
 def remove_ROI(evt):
     # evt.removeTimer.stop()
