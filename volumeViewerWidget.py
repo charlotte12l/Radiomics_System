@@ -173,6 +173,9 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
         self.__label = None
         self.__ROI = None
         self.__ROIArray = None
+        self.__ROISlice = None
+        self.possy = None
+        self.possx = None
         self.__imageArray = None
         self.__labelArray = None
         self.__z,self.__y, self.__x = None,None,None
@@ -338,25 +341,69 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
             self.possy = m[1, :, :]  # make the y pos array
             self.possx.shape = cols, rows
             self.possy.shape = cols, rows
-            self.__ROIArray = np.zeros(self.__sagittal.shape)
+            self.__ROIArray = np.zeros(self.__imageArray.shape)
+            self.__ROISlice = np.zeros(self.__sagittal.shape)
 
     def accROI(self):
         if self.__ROI is None:
             return
         if self.__ROIAx=='s':
-            mpossx = self.__ROI.getArrayRegion(self.possx, self.p_s).astype(int)
+            mpossx = self.__ROI.getArrayRegion(self.possx, self.img_s).astype(int)
             mpossx = mpossx[np.nonzero(mpossx)]  # get the x pos from ROI
-            mpossy = self.__ROI.getArrayRegion(self.possy, self.p_s).astype(int)
+            mpossy = self.__ROI.getArrayRegion(self.possy, self.img_s).astype(int)
             mpossy = mpossy[np.nonzero(mpossy)]  # get the y pos from ROI
-            self.__ROIArray[mpossx, mpossy] = self.__sagittal[mpossx, mpossy]
+            self.__ROISlice[mpossx, mpossy] = self.__sagittal[mpossx, mpossy]
+            self.__ROISlice = (self.__ROISlice>0).astype(int)
+            self.__ROIArray[self.__cur_z, :, :] = np.flipud(self.__ROISlice)
 
-    def saveROI(self):
+            if self.__sagittal_label is not None:
+                self.__sagittal_label += self.__ROISlice.astype(np.uint8)
+            else:
+                self.__sagittal_label = self.__ROISlice.astype(np.uint8)
+            # print(np.unique(self.__sagittal_label),np.shape(self.__sagittal_label))
+            self.p_s.removeItem(self.__ROI)
+            self.__updatePixmapS()
+            # np.flipud(self.__imageArray[self.__cur_z, :, :])
+
+    def saveSelROI(self):
         # to be implemented
-        pass
+        if self.__ROIArray is not None:
+            sitk.WriteImage(sitk.GetImageFromArray(self.__ROIArray), 'mask.nii.gz')
+            print('save Sel!')
+        return
 
-    def clrROI(self):
+    def saveAllROI(self):
+        # to be implemented
+        if self.__ROIArray is not None:
+            if self.__labelArray is not None:
+                sitk.WriteImage(sitk.GetImageFromArray(self.__ROIArray+self.__labelArray), 'mask.nii.gz')
+            else:
+                sitk.WriteImage(sitk.GetImageFromArray(self.__ROIArray), 'mask.nii.gz')
+            print('save All!')
+        return
+
+
+    def clrSelROI(self):
+        # 什么时候都没有改变过Label
+        self.__ROIArray = None
+        self.__ROISlice = None
+        self.__updateLabelArray() # 重新读取了原来的label
+        self.__updatePixmapS()
+        self.__updatePixmapA()
+        self.__updatePixmapC()
         if self.__ROIAx == 's':
             self.p_s.removeItem(self.__ROI)
+        return
+
+    def clrAllROI(self):
+        self.__label = None
+        self.__ROIArray = None
+        self.__ROISlice = None
+        self.__updateLabelArray()
+        self.__updatePixmapS()
+        self.__updatePixmapA()
+        self.__updatePixmapC()
+        return
     # def setIndex(self, index):
     #     if self.__image is None:
     #         return
@@ -430,6 +477,9 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
     def __updateLabelArray(self):
         if self.__label is None:
             self.__labelArray = None
+            self.__sagittal_label = None
+            self.__axial_label = None
+            self.__coronal_label = None
         else:
             array = sitk.GetArrayFromImage(self.__label)
 
@@ -451,8 +501,10 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
             image = np.stack([image, image, image], axis=-1)
         else:
             image = cv2.applyColorMap(image, self.__colormap)# 3d image?
-        if self.__labelArray is not None:
+        if self.__labelArray is not None or self.__ROIArray is not None:
             label = self.__sagittal_label
+            # self.__opacity = 0.5
+            # print(label,np.shape(label),np.unique(label),np.sum(label==5))
             if self.__labelColormap.shape[-1] == 4:
                 alphaMap = self.__labelColormap[:,:,-1].reshape(256,1,1)
             else:
@@ -466,6 +518,8 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
             self.__sagittal_pix = array.astype(np.uint8)
         else:
             self.__sagittal_pix = image
+        self.img_s.setImage(self.__sagittal_pix)
+        self.p_s.autoRange()
 
     def __updatePixmapA(self):
         image = self.__axial
@@ -608,6 +662,24 @@ class volumeViewerWidget(QWidget):
         labelArray = sitk.GetArrayFromImage(label)
         self.viewerSlice.setLabel(label)
         self.sliderOpacity.show()
+
+    def setROI(self,ax = 's'):
+        self.viewerSlice.setROI(ax)
+
+    def accROI(self):
+        self.viewerSlice.accROI()
+
+    def saveSelROI(self):
+        self.viewerSlice.saveSelROI()
+
+    def saveAllROI(self):
+        self.viewerSlice.saveAllROI()
+
+    def clrSelROI(self):
+        self.viewerSlice.clrSelROI()
+
+    def clrAllROI(self):
+        self.viewerSlice.clrAllROI()
 
 
     def mousePressEvent(self, event):

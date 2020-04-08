@@ -95,14 +95,18 @@ class annotationPannelWidget(QWidget):
         super(annotationPannelWidget, self).__init__(parent)
         self.btnDoAnn = QPushButton('Draw Polygon')
         self.btnAccROI = QPushButton('Accept Drawing')
-        self.btnClrROI = QPushButton('Clear Drawing')
-        self.btnSaveROI = QPushButton('Save Drawing')
+        self.btnClrSelROI = QPushButton('Clear Selected ROI')
+        self.btnClrAllROI = QPushButton('Clear All ROI')
+        self.btnSaveSelROI = QPushButton('Save Selected ROI')
+        self.btnSaveAllROI = QPushButton('Save All ROI')
 
         vbox = QVBoxLayout(self)
         vbox.addWidget(self.btnDoAnn)
         vbox.addWidget(self.btnAccROI)
-        vbox.addWidget(self.btnClrROI)
-        vbox.addWidget(self.btnSaveROI)
+        vbox.addWidget(self.btnClrSelROI)
+        vbox.addWidget(self.btnClrAllROI)
+        vbox.addWidget(self.btnSaveSelROI)
+        vbox.addWidget(self.btnSaveAllROI)
         self.setLayout(vbox)
 
 class mainWindow(QMainWindow):
@@ -239,6 +243,13 @@ class mainWindow(QMainWindow):
         self.controlPanel.btnExt.clicked.connect(self.actFeatureExt)
         self.controlPanel.btnSel.clicked.connect(self.child_stat.show)
 
+        self.annotationPanel.btnDoAnn.clicked.connect(self.actDoAnn)
+        self.annotationPanel.btnAccROI.clicked.connect(self.actAccROI)
+        self.annotationPanel.btnClrSelROI.clicked.connect(self.actClrSelROI)
+        self.annotationPanel.btnClrAllROI.clicked.connect(self.actClrAllROI)
+        self.annotationPanel.btnSaveSelROI.clicked.connect(self.actSaveSelROI)
+        self.annotationPanel.btnSaveAllROI.clicked.connect(self.actSaveAllROI)
+
         # self.controlPanel.btnCla.clicked.connect(self.actGetGrade)
         # self.controlPanel.btnSeg.clicked.connect(self.actGetSeg)
         # self.controlPanel.btnRef.clicked.connect(self.actGetReference)
@@ -262,7 +273,20 @@ class mainWindow(QMainWindow):
         return
 
     def actAccROI(self):
-        pass
+        self.volumeViewer.accROI()
+        return
+
+    def actSaveSelROI(self):
+        self.volumeViewer.saveSelROI()
+
+    def actSaveAllROI(self):
+        self.volumeViewer.saveAllROI()
+
+    def actClrSelROI(self):
+        self.volumeViewer.clrSelROI()
+
+    def actClrAllROI(self):
+        self.volumeViewer.clrAllROI()
 
     @pyqtSlot()
     def actLoadStudy(self, directory=None):
