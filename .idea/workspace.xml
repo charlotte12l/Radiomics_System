@@ -13,7 +13,7 @@
     <SUITE FILE_PATH="coverage/Cartilage_Evaluation_System$FeatureExtraction.coverage" NAME="FeatureExtraction Coverage Results" MODIFIED="1583154918036" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/analysis" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.38956127">
+    <splitter split-orientation="horizontal" split-proportion="0.78441757">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file pinned="false" current-in-tab="false">
@@ -28,11 +28,11 @@
               </provider>
             </entry>
           </file>
-          <file pinned="false" current-in-tab="true">
+          <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/volumeViewerWidget.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-911">
-                  <caret line="356" column="24" lean-forward="true" selection-start-line="356" selection-start-column="24" selection-end-line="356" selection-end-column="24" />
+                <state relative-caret-position="349">
+                  <caret line="426" column="87" selection-start-line="426" selection-start-column="87" selection-end-line="426" selection-end-column="87" />
                   <folding>
                     <element signature="e#20#134#0" expanded="true" />
                   </folding>
@@ -40,11 +40,11 @@
               </provider>
             </entry>
           </file>
-          <file pinned="false" current-in-tab="false">
+          <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/mainWindow.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="306">
-                  <caret line="279" column="33" selection-start-line="279" selection-start-column="33" selection-end-line="279" selection-end-column="33" />
+                <state relative-caret-position="420">
+                  <caret line="317" column="14" selection-start-line="317" selection-start-column="14" selection-end-line="317" selection-end-column="14" />
                   <folding>
                     <element signature="e#20#33#0" expanded="true" />
                   </folding>
@@ -59,8 +59,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/volumeViewerWidget.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="180">
-                  <caret line="490" selection-start-line="490" selection-end-line="490" />
+                <state relative-caret-position="186">
+                  <caret line="565" column="8" selection-start-line="565" selection-start-column="8" selection-end-line="565" selection-end-column="8" />
                   <folding>
                     <element signature="e#20#134#0" expanded="true" />
                   </folding>
@@ -81,8 +81,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>spacing</find>
-      <find>label</find>
       <find>mova</find>
       <find>vb</find>
       <find>vol</find>
@@ -111,6 +109,8 @@
       <find>sliced</find>
       <find>mousecli</find>
       <find>updatel</find>
+      <find>updatelabelar</find>
+      <find>p_a</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -144,8 +144,8 @@
         <option value="$PROJECT_DIR$/customGraphicsItem.py" />
         <option value="D:/Program/Miniconda3/envs/bs/Lib/site-packages/pyqtgraph/graphicsItems/ROI.py" />
         <option value="$PROJECT_DIR$/testROI.py" />
-        <option value="$PROJECT_DIR$/mainWindow.py" />
         <option value="$PROJECT_DIR$/volumeViewerWidget.py" />
+        <option value="$PROJECT_DIR$/mainWindow.py" />
       </list>
     </option>
   </component>
@@ -277,12 +277,12 @@
       <workItem from="1586077315840" duration="5808000" />
       <workItem from="1586181258406" duration="3928000" />
       <workItem from="1586226383088" duration="12508000" />
-      <workItem from="1586309039113" duration="15602000" />
+      <workItem from="1586309039113" duration="21515000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="207693000" />
+    <option name="totallyTimeSpent" value="213606000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
@@ -656,22 +656,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mainWindow.py">
+    <entry file="file://$PROJECT_DIR$/volumeViewerWidget.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="279" column="33" selection-start-line="279" selection-start-column="33" selection-end-line="279" selection-end-column="33" />
+        <state relative-caret-position="349">
+          <caret line="426" column="87" selection-start-line="426" selection-start-column="87" selection-end-line="426" selection-end-column="87" />
           <folding>
-            <element signature="e#20#33#0" expanded="true" />
+            <element signature="e#20#134#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/volumeViewerWidget.py">
+    <entry file="file://$PROJECT_DIR$/mainWindow.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="490" selection-start-line="490" selection-end-line="490" />
+        <state relative-caret-position="420">
+          <caret line="317" column="14" selection-start-line="317" selection-start-column="14" selection-end-line="317" selection-end-column="14" />
           <folding>
-            <element signature="e#20#134#0" expanded="true" />
+            <element signature="e#20#33#0" expanded="true" />
           </folding>
         </state>
       </provider>

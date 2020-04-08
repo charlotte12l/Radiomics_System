@@ -12,9 +12,9 @@ from ReadSagittalPD import ReadImage, ReadROI
 from PyQt5.QtWidgets import QGridLayout, \
         QDesktopWidget, QMainWindow, QApplication, qApp, \
         QDockWidget, QWidget, QAction, QTableWidget, QTableWidgetItem, \
-        QMenu, QPushButton, \
+        QMenu, QPushButton, QLabel,\
         QVBoxLayout, QHBoxLayout, \
-        QFileDialog, QMessageBox, QDialog
+        QFileDialog, QMessageBox, QDialog, QRadioButton,  QButtonGroup
 from PyQt5.QtCore import Qt, pyqtSlot, QSize
 
 from volumeViewerWidget import volumeViewerWidget, volumeSliceViewerWidget
@@ -93,6 +93,13 @@ class controlPannelWidget(QWidget):
 class annotationPannelWidget(QWidget):
     def __init__(self, parent=None):
         super(annotationPannelWidget, self).__init__(parent)
+
+        # self.bg1 = QButtonGroup(self)
+        # self.bg1.addButton(self.rb11, 11)
+        # self.bg1.addButton(self.rb12, 12)
+        # self.bg1.addButton(self.rb13, 13)
+
+
         self.btnDoAnn = QPushButton('Draw Polygon')
         self.btnAccROI = QPushButton('Accept Drawing')
         self.btnClrSelROI = QPushButton('Clear Selected ROI')
@@ -100,13 +107,26 @@ class annotationPannelWidget(QWidget):
         self.btnSaveSelROI = QPushButton('Save Selected ROI')
         self.btnSaveAllROI = QPushButton('Save All ROI')
 
+        self.rbS = QRadioButton('S', self)
+        self.rbA = QRadioButton('A',self)
+        self.rbC = QRadioButton('C',self)
+        self.rbS.setChecked(True)
+        childBox = QHBoxLayout()
+        childBox.addWidget(self.rbS)
+        childBox.addWidget(self.rbA)
+        childBox.addWidget(self.rbC)
+
         vbox = QVBoxLayout(self)
+        # vbox.addWidget(QLabel("Select AX"))
+        # vbox.addSpacing(0)
+        vbox.addLayout(childBox)
         vbox.addWidget(self.btnDoAnn)
         vbox.addWidget(self.btnAccROI)
         vbox.addWidget(self.btnClrSelROI)
         vbox.addWidget(self.btnClrAllROI)
         vbox.addWidget(self.btnSaveSelROI)
         vbox.addWidget(self.btnSaveAllROI)
+
         self.setLayout(vbox)
 
 class mainWindow(QMainWindow):
@@ -269,7 +289,12 @@ class mainWindow(QMainWindow):
     #     pass
 
     def actDoAnn(self):
-        self.volumeViewer.setROI(ax = 's')
+        if self.annotationPanel.rbS.isChecked()==True:
+            self.volumeViewer.setROI(ax='S')
+        if self.annotationPanel.rbA.isChecked() == True:
+            self.volumeViewer.setROI(ax='A')
+        if self.annotationPanel.rbC.isChecked() == True:
+            self.volumeViewer.setROI(ax='C')
         return
 
     def actAccROI(self):
@@ -278,15 +303,19 @@ class mainWindow(QMainWindow):
 
     def actSaveSelROI(self):
         self.volumeViewer.saveSelROI()
+        return
 
     def actSaveAllROI(self):
         self.volumeViewer.saveAllROI()
+        return
 
     def actClrSelROI(self):
         self.volumeViewer.clrSelROI()
+        return
 
     def actClrAllROI(self):
         self.volumeViewer.clrAllROI()
+        return
 
     @pyqtSlot()
     def actLoadStudy(self, directory=None):

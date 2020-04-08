@@ -295,7 +295,8 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
                 #     "<span style='font-size: 12pt'>x=%d,   <span style='font-size: 12pt'>y=%d</span>, <span style='font-size: 12pt'>z=%d " % (
                 #         self.__cur_x+1, self.__cur_y+1, self.__cur_z+1))
 
-        self.__updateLabelArray()
+        # self.__updateLabelArray()
+        self.__updateLabelMap()
         self.__updatePixmapS()
         self.__updatePixmapA()
         self.__updatePixmapC()
@@ -320,6 +321,7 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
         assert label.GetSize() == self.__image.GetSize()
         self.__label = label
         self.__updateLabelArray()
+        self.__updateLabelMap()
         self.__updatePixmapS()
         self.__updatePixmapA()
         self.__updatePixmapC()
@@ -327,7 +329,8 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
     def setROI(self,ax = 's'):
         if self.__image is None:
             return
-        if ax =='s':
+        self.__ROIArray = np.zeros(self.__imageArray.shape)
+        if ax =='S':
             self.__ROIAx = ax
             points =  np.array([[np.shape(self.__sagittal)[0]//4,np.shape(self.__sagittal)[1]//4],
                                 [np.shape(self.__sagittal)[0] // 4, np.shape(self.__sagittal)[1] // 2],
@@ -341,13 +344,49 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
             self.possy = m[1, :, :]  # make the y pos array
             self.possx.shape = cols, rows
             self.possy.shape = cols, rows
-            self.__ROIArray = np.zeros(self.__imageArray.shape)
             self.__ROISlice = np.zeros(self.__sagittal.shape)
+
+        if ax =='A':
+            self.__ROIAx = ax
+            # points =  np.array([[np.shape(self.__axial)[0]//4,np.shape(self.__axial)[1]//4],
+            #                     [np.shape(self.__axial)[0] // 4, np.shape(self.__axial)[1] // 2],
+            #                     [np.shape(self.__axial)[0] // 2, np.shape(self.__axial)[1] // 2]]
+            #                    )
+            points =  np.array([[np.shape(self.__axial)[1]//4,np.shape(self.__axial)[0]//4],
+                                [ np.shape(self.__axial)[1] // 2,np.shape(self.__axial)[0] // 4],
+                                [np.shape(self.__axial)[1] // 2, np.shape(self.__axial)[0] // 2]]
+                               )
+            self.__ROI = pg.PolyLineROI(points,closed=True)
+            self.p_a.addItem(self.__ROI)
+            print('add a!',points)
+            cols, rows = self.__axial.shape
+            m = np.mgrid[:cols, :rows]
+            self.possx = m[0, :, :]  # make the x pos array
+            self.possy = m[1, :, :]  # make the y pos array
+            self.possx.shape = cols, rows
+            self.possy.shape = cols, rows
+            self.__ROISlice = np.zeros(self.__axial.shape)
+
+        if ax =='C':
+            self.__ROIAx = ax
+            points =  np.array([[np.shape(self.__coronal)[1]//4,np.shape(self.__coronal)[0]//4],
+                                [np.shape(self.__coronal)[1] // 2, np.shape(self.__coronal)[0] // 4],
+                                [np.shape(self.__coronal)[1] // 2, np.shape(self.__coronal)[0] // 2]]
+                               )
+            self.__ROI = pg.PolyLineROI(points,closed=True)
+            self.p_c.addItem(self.__ROI)
+            cols, rows = self.__coronal.shape
+            m = np.mgrid[:cols, :rows]
+            self.possx = m[0, :, :]  # make the x pos array
+            self.possy = m[1, :, :]  # make the y pos array
+            self.possx.shape = cols, rows
+            self.possy.shape = cols, rows
+            self.__ROISlice = np.zeros(self.__coronal.shape)
 
     def accROI(self):
         if self.__ROI is None:
             return
-        if self.__ROIAx=='s':
+        if self.__ROIAx=='S':
             mpossx = self.__ROI.getArrayRegion(self.possx, self.img_s).astype(int)
             mpossx = mpossx[np.nonzero(mpossx)]  # get the x pos from ROI
             mpossy = self.__ROI.getArrayRegion(self.possy, self.img_s).astype(int)
@@ -356,13 +395,47 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
             self.__ROISlice = (self.__ROISlice>0).astype(int)
             self.__ROIArray[self.__cur_z, :, :] = np.flipud(self.__ROISlice)
 
-            if self.__sagittal_label is not None:
-                self.__sagittal_label += self.__ROISlice.astype(np.uint8)
+            if self.__labelArray is not None:
+                self.__labelArray += self.__ROIArray.astype(np.uint8)
             else:
-                self.__sagittal_label = self.__ROISlice.astype(np.uint8)
-            # print(np.unique(self.__sagittal_label),np.shape(self.__sagittal_label))
+                self.__labelArray = self.__ROIArray.astype(np.uint8)
             self.p_s.removeItem(self.__ROI)
-            self.__updatePixmapS()
+
+        if self.__ROIAx=='A':
+            mpossx = self.__ROI.getArrayRegion(self.possx, self.img_a).astype(int)
+            mpossx = mpossx[np.nonzero(mpossx)]  # get the x pos from ROI
+            mpossy = self.__ROI.getArrayRegion(self.possy, self.img_a).astype(int)
+            mpossy = mpossy[np.nonzero(mpossy)]  # get the y pos from ROI
+            self.__ROISlice[mpossx, mpossy] = self.__axial[mpossx, mpossy]
+            self.__ROISlice = (self.__ROISlice>0).astype(int)
+            self.__ROIArray[:, self.__cur_y, :] = np.fliplr(np.rot90((self.__ROISlice),1))
+            # self.__ROIArray[:, self.__cur_y, :] = self.__ROISlice
+
+            if self.__labelArray is not None:
+                self.__labelArray += self.__ROIArray.astype(np.uint8)
+            else:
+                self.__labelArray = self.__ROIArray.astype(np.uint8)
+            self.p_a.removeItem(self.__ROI)
+
+        if self.__ROIAx=='C':
+            mpossx = self.__ROI.getArrayRegion(self.possx, self.img_c).astype(int)
+            mpossx = mpossx[np.nonzero(mpossx)]  # get the x pos from ROI
+            mpossy = self.__ROI.getArrayRegion(self.possy, self.img_c).astype(int)
+            mpossy = mpossy[np.nonzero(mpossy)]  # get the y pos from ROI
+            self.__ROISlice[mpossx, mpossy] = self.__coronal[mpossx, mpossy]
+            self.__ROISlice = (self.__ROISlice>0).astype(int)
+            self.__ROIArray[:, :, self.__cur_x] = np.fliplr(np.rot90((self.__ROISlice),1))
+
+            if self.__labelArray is not None:
+                self.__labelArray += self.__ROIArray.astype(np.uint8)
+            else:
+                self.__labelArray = self.__ROIArray.astype(np.uint8)
+            self.p_c.removeItem(self.__ROI)
+
+        self.__updateLabelMap()
+        self.__updatePixmapS()
+        self.__updatePixmapA()
+        self.__updatePixmapC()
             # np.flipud(self.__imageArray[self.__cur_z, :, :])
 
     def saveSelROI(self):
@@ -375,10 +448,10 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
     def saveAllROI(self):
         # to be implemented
         if self.__ROIArray is not None:
-            if self.__labelArray is not None:
-                sitk.WriteImage(sitk.GetImageFromArray(self.__ROIArray+self.__labelArray), 'mask.nii.gz')
-            else:
-                sitk.WriteImage(sitk.GetImageFromArray(self.__ROIArray), 'mask.nii.gz')
+            # if self.__labelArray is not None:
+            sitk.WriteImage(sitk.GetImageFromArray(self.__labelArray), 'mask.nii.gz')
+            # else:
+            #     sitk.WriteImage(sitk.GetImageFromArray(self.__ROIArray), 'mask.nii.gz')
             print('save All!')
         return
 
@@ -387,7 +460,8 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
         # 什么时候都没有改变过Label
         self.__ROIArray = None
         self.__ROISlice = None
-        self.__updateLabelArray() # 重新读取了原来的label
+        self.__updateLabelArray() # 重新读取了原来的label的labelArray
+        self.__updateLabelMap() # 更新各个面的label
         self.__updatePixmapS()
         self.__updatePixmapA()
         self.__updatePixmapC()
@@ -399,7 +473,7 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
         self.__label = None
         self.__ROIArray = None
         self.__ROISlice = None
-        self.__updateLabelArray()
+        self.__updateLabelArray() # 把各个面的label都清空了
         self.__updatePixmapS()
         self.__updatePixmapA()
         self.__updatePixmapC()
@@ -489,6 +563,8 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
             # self.__labelArray = (array - np.float32(minVal))/np.float32(maxVal-minVal)
             # self.__labelArray = (255*self.__labelArray).astype(np.uint8)
 
+    def __updateLabelMap(self):
+        if self.__labelArray is not None:
             self.__sagittal_label = np.flipud(self.__labelArray[self.__cur_z, :, :])
             self.__axial_label = np.fliplr(np.rot90(self.__labelArray[:, self.__cur_y, :], 1))
             self.__coronal_label = np.fliplr(np.rot90(self.__labelArray[:, :, self.__cur_x ], 1))
@@ -501,7 +577,7 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
             image = np.stack([image, image, image], axis=-1)
         else:
             image = cv2.applyColorMap(image, self.__colormap)# 3d image?
-        if self.__labelArray is not None or self.__ROIArray is not None:
+        if self.__labelArray is not None:
             label = self.__sagittal_label
             # self.__opacity = 0.5
             # print(label,np.shape(label),np.unique(label),np.sum(label==5))
