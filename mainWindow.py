@@ -174,6 +174,41 @@ class mainWindow(QMainWindow):
         fileMenu = menubar.addMenu('Classification')
         fileMenu.addAction(LogiRegAct)
         fileMenu.addAction(SVCAct)
+
+        DenoiseAct = QAction('Wavelet Denoise', self)
+        DenoiseAct.triggered.connect(self.actDenoise)
+
+        GasSmoothAct = QAction('Guassian Smooth', self)
+        GasSmoothAct.triggered.connect(self.actGasSmooth)
+
+        MeanSmoothAct = QAction('Mean Smooth', self)
+        MeanSmoothAct.triggered.connect(self.actMeanSmooth)
+
+        MedSmoothAct = QAction('Median Smooth', self)
+        MedSmoothAct.triggered.connect(self.actMedSmooth)
+
+        ResampleAct = QAction('Resample', self)
+        ResampleAct.triggered.connect(self.actResample)
+
+        menubar = self.menuBar()
+        fileMenu = menubar.addMenu('Pre-processing')
+        fileMenu.addAction(DenoiseAct)
+        fileMenu.addAction(GasSmoothAct)
+        fileMenu.addAction(MeanSmoothAct)
+        fileMenu.addAction(MedSmoothAct)
+        fileMenu.addAction(ResampleAct)
+
+        ThredAct = QAction('Threshold Seg', self)
+        ThredAct.triggered.connect(self.actThreshold)
+
+        DPSegAct = QAction('Deep Learning', self)
+        DPSegAct.triggered.connect(self.actDPSeg)
+
+        segbar = self.menuBar()
+        segMenu = segbar.addMenu('Segmentation')
+        segMenu.addAction(ThredAct)
+        segMenu.addAction(DPSegAct)
+
         #loadStudyAct = QAction('Load Dicom Study', self)
         #fileMenu.addAction(loadStudyAct)
         #exitAct = QAction('Quit', self)
@@ -279,14 +314,6 @@ class mainWindow(QMainWindow):
         self.FeatureDisp.cellPressed.connect( \
                 lambda row, col: self.volumeViewer.sliderIndex.setValue(row+1))
 
-    # def actLogiReg(self):
-    #     self.cls_Logi.show()
-    #
-    #     # self.controlPanel.btnSel.clicked.connect(self.child_cls.show)
-    #     pass
-
-    # def actSVC(self):
-    #     pass
 
     def actDoAnn(self):
         if self.annotationPanel.rbS.isChecked()==True:
@@ -316,6 +343,33 @@ class mainWindow(QMainWindow):
     def actClrAllROI(self):
         self.volumeViewer.clrAllROI()
         return
+
+    def actDenoise(self):
+        self.volumeViewer.denoise()
+        return
+
+    def actGasSmooth(self):
+        self.volumeViewer.setPreprocessMethod(method='Gaussian')
+        return
+
+    def actMeanSmooth(self):
+        self.volumeViewer.setPreprocessMethod(method='Mean')
+        return
+
+    def actMedSmooth(self):
+        self.volumeViewer.setPreprocessMethod(method='Median')
+        return
+
+    def actResample(self):
+        self.volumeViewer.setPreprocessMethod(method='Resample')
+        return
+
+    def actThreshold(self):
+        self.volumeViewer.setSegMethod(method='Threshold')
+        return
+
+    def actDPSeg(self):
+        pass
 
     @pyqtSlot()
     def actLoadStudy(self, directory=None):
@@ -412,6 +466,9 @@ class mainWindow(QMainWindow):
                 'Ready ({:.2f}s)'.format(time.time() - start))
 
         return
+
+
+
 
     # def actFeatureSel(self):
     #     start = time.time()

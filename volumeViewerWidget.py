@@ -1,16 +1,19 @@
 #!/usr/bin/python3
 
 from PyQt5.QtWidgets import QWidget, QSlider, QLabel, QScrollArea, \
-        QHBoxLayout, QVBoxLayout, QSizePolicy
+        QHBoxLayout, QVBoxLayout, QSizePolicy, QSpinBox, QPushButton
 from PyQt5.QtGui import QImage, QPixmap, QPalette
 from PyQt5.QtCore import Qt, pyqtSlot, QPoint
+from skimage.restoration import (denoise_tv_chambolle, denoise_bilateral,
+                                 denoise_wavelet, estimate_sigma,denoise_nl_means)
 
 import numpy as np
 import SimpleITK as sitk
 import cv2
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
-
+from preprocess.Smoothing import meanSmooth, guassianSmooth, medianSmooth
+from skimage import transform
 
 class scalableLabel(QScrollArea):
     # scaleMin = 0.2
@@ -183,6 +186,9 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
         self.__sagittal,self.__axial, self.__coronal = None,None,None
         self.__sagittal_label, self.__axial_label, self.__coronal_label = None, None, None
         self.__sagittal_pix, self.__axial_pix, self.__coronal_pix = None, None, None
+        self.__direction = None
+        self.__smoothMethod = None
+        self.__smoothKernel = None
 
         # print('6')
         self.proxy_a = pg.SignalProxy(self.p_a.scene().sigMouseClicked, rateLimit=60, slot=self.mouseCliked)
@@ -478,14 +484,80 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
         self.__updatePixmapA()
         self.__updatePixmapC()
         return
-    # def setIndex(self, index):
-    #     if self.__image is None:
-    #         return
-    #     index = int(index)
-    #     assert index >= 0 and index < self.__image.GetDepth(), \
-    #             "index ("+str(index)+") out of range"
-    #     self.__index=index
-    #     self.__updatePixmap()
+
+    def denoise(self):
+        if self.__imageArray is None:
+            return
+        self.__imageArray = denoise_wavelet(self.__imageArray, multichannel=False, rescale_sigma=True)
+        minVal = self.__imageArray.min()
+
+        maxVal = self.__imageArray.max()
+
+        self.__imageArray = np.clip( \
+                (self.__imageArray - np.float32(minVal))/np.float32(maxVal-minVal), 0, 1)
+        self.__imageArray = (255*self.__imageArray).astype(np.uint8)
+        # print(self.__imageArray.shape,self.__imageArray.min(),self.__imageArray.max())
+        self.__updateImageMap()
+        self.__updatePixmapS()
+        self.__updatePixmapA()
+        self.__updatePixmapC()
+        # print('finish denoise!')
+        return
+
+    def setSmoothMethod(self,method):
+        self.__smoothMethod = method
+        return
+
+    def setSmoothKernel(self,kernel_size):
+        self.__smoothKernel = kernel_size
+        return
+
+    def smooth(self):
+        # assume that the first axial is Saggittal
+        if self.__imageArray is None:
+            return
+        if self.__smoothMethod =='Guassian':
+            self.__imageArray = guassianSmooth(self.__imageArray,self.__smoothKernel)
+        if self.__smoothMethod =='Mean':
+            self.__imageArray = meanSmooth(self.__imageArray,self.__smoothKernel)
+        if self.__smoothMethod =='Median':
+            self.__imageArray = medianSmooth(self.__imageArray,self.__smoothKernel)
+        self.__updateImageMap()
+        self.__updatePixmapS()
+        self.__updatePixmapA()
+        self.__updatePixmapC()
+        print('finish smooth!',self.__smoothKernel,self.__smoothMethod)
+        return
+
+    def resample(self,tuple):
+        if self.__imageArray is None:
+            return
+        self.__labelArray = None
+        self.__label = None
+        self.__imageArray = transform.resize(self.__imageArray,tuple)
+        self.__z,self.__y,self.__x = np.shape(self.__imageArray)
+        self.__cur_z = self.__z // 2
+        self.__cur_x = self.__x // 2
+        self.__cur_y = self.__y // 2
+
+        self.__sagittal = np.flipud(self.__imageArray[self.__z // 2, :, :])
+        self.__axial = np.fliplr(np.rot90(self.__imageArray[:, self.__y // 2, :], 1))
+        self.__coronal = np.fliplr(np.rot90(self.__imageArray[:, :, self.__x // 2], 1))
+        self.__updatePixmapS()
+        self.__updatePixmapA()
+        self.__updatePixmapC()
+        # print('resample!')
+
+    def thredSeg(self, threshold):
+        if self.__imageArray is None:
+            return
+        self.__labelArray = (self.__imageArray>threshold)*3
+        self.__labelArray = self.__labelArray.astype(np.uint8)
+        self.__updateLabelMap()
+        self.__updatePixmapS()
+        self.__updatePixmapA()
+        self.__updatePixmapC()
+        print('seg!')
 
     def setOpacity(self, opacity):
         assert opacity >=0 and opacity <=1, "opacity out of range"
@@ -547,6 +619,13 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
         self.__coronal = np.fliplr(np.rot90(self.__imageArray[:, :, self.__x // 2], 1))
         # print(self.__z,self.__y,self.__x )
         # print(np.shape(self.__sagittal),np.unique(self.__sagittal))
+
+    def __updateImageMap(self):
+        if self.__imageArray is not None:
+            self.__sagittal = np.flipud(self.__imageArray[self.__cur_z, :, :])
+            self.__axial = np.fliplr(np.rot90(self.__imageArray[:, self.__cur_y , :], 1))
+            self.__coronal = np.fliplr(np.rot90(self.__imageArray[:, :, self.__cur_x ], 1))
+
 
     def __updateLabelArray(self):
         if self.__label is None:
@@ -694,6 +773,60 @@ class SliderWithTextWidget(QWidget):
         #self.sliderIndex.setSliderPosition(self.__visibleIndex + 1)
 
 
+class SpinBoxWithTextWidget(QWidget):
+    def __init__(self, parent=None, text=None):
+        super(SpinBoxWithTextWidget, self).__init__(parent)
+        if text is not None:
+            self.labelText = QLabel(self)
+            self.labelText.setText(str(text))
+
+        hbox = QHBoxLayout(self)
+        if text is not None:
+            hbox.addWidget(self.labelText)
+
+        self.sp=QSpinBox()
+        hbox.addWidget(self.sp)
+        # self.sp.valueChanged.connect(self.Valuechange)
+        self.btnApply = QPushButton('Apply')
+        hbox.addWidget(self.btnApply)
+
+class resampleWidget(QWidget):
+    def __init__(self, parent=None, text='Resample'):
+        super(resampleWidget, self).__init__(parent)
+        if text is not None:
+            self.labelText = QLabel(self)
+            self.labelText.setText(str(text))
+
+        hbox = QHBoxLayout(self)
+        if text is not None:
+            hbox.addWidget(self.labelText)
+
+        self.label_x = QLabel(self)
+        self.label_x.setText('size_x')
+        self.label_y = QLabel(self)
+        self.label_y.setText('size_y')
+        self.label_z = QLabel(self)
+        self.label_z.setText('size_z')
+
+        self.sp_x = QSpinBox()
+        self.sp_x.setMaximum(2000)
+        self.sp_x.setMinimum(1)
+        self.sp_y = QSpinBox()
+        self.sp_y.setMaximum(2000)
+        self.sp_y.setMinimum(1)
+        self.sp_z = QSpinBox()
+        self.sp_z.setMaximum(2000)
+        self.sp_z.setMinimum(1)
+        hbox.addWidget(self.label_x)
+        hbox.addWidget(self.sp_x)
+        hbox.addWidget(self.label_y)
+        hbox.addWidget(self.sp_y)
+        hbox.addWidget(self.label_z)
+        hbox.addWidget(self.sp_z)
+        # self.sp.valueChanged.connect(self.Valuechange)
+        self.btnApply = QPushButton('Apply')
+        hbox.addWidget(self.btnApply)
+
 class volumeViewerWidget(QWidget):
     displayPercentile = 0.001
     opacityMax = 100
@@ -701,17 +834,30 @@ class volumeViewerWidget(QWidget):
     def __init__(self, parent=None, colormap=None):
         super(volumeViewerWidget, self).__init__(parent)
         self.sliderOpacity = SliderWithTextWidget(self, text='Opacity')
-        # self.sliderIndex   = SliderWithTextWidget(self, text=' Slice ')
+        # self.sliderGuassian   = SliderWithTextWidget(self, text=' Guassian  ')
         self.viewerSlice =  volumeSliceViewerWidget(self, colormap=colormap)
+        self.GaussianBox = SpinBoxWithTextWidget(self, text=' Kernel Size')
+        self.ThredBox = SpinBoxWithTextWidget(self, text='Threshold Segmentation')
+        self.ResampleBox = resampleWidget(self, text='Resample')
+
+        self.ThredBox.sp.setMaximum(1000)
+
         vbox = QVBoxLayout(self)
         vbox.addWidget(self.viewerSlice, stretch=1)
         # vbox.addWidget(self.sliderIndex)
         vbox.addWidget(self.sliderOpacity)
+        vbox.addWidget(self.GaussianBox)
+        vbox.addWidget(self.ResampleBox)
+        vbox.addWidget(self.ThredBox)
 
         self.sliderOpacity.setMinimum(0)
         self.sliderOpacity.setMaximum(self.opacityMax)
         self.sliderOpacity.setValue(self.opacityMax)
         self.sliderOpacity.hide()
+
+        self.GaussianBox.hide()
+        self.ResampleBox.hide()
+        self.ThredBox.hide()
 
         self.__mouseRightPressing = False
         self.__mouseRightPos = QPoint(0,0)
@@ -721,6 +867,39 @@ class volumeViewerWidget(QWidget):
         #         lambda x: self.viewerSlice.setIndex(x-1))
         self.sliderOpacity.valueChanged.connect(\
                 lambda x: self.viewerSlice.setOpacity(x/self.opacityMax))
+
+        self.GaussianBox.btnApply.clicked.connect(self.viewerSlice.smooth)
+        self.GaussianBox.sp.valueChanged.connect(self.smoothChange)
+
+        self.__resampleX = None
+        self.__resampleY = None
+        self.__resampleZ = None
+
+        self.ResampleBox.sp_x.valueChanged.connect(self.resampleChangeX)
+        self.ResampleBox.sp_y.valueChanged.connect(self.resampleChangeY)
+        self.ResampleBox.sp_z.valueChanged.connect(self.resampleChangeZ)
+
+        self.ResampleBox.btnApply.clicked.connect(self.resample)
+
+        self.ThredBox.btnApply.clicked.connect(self.thredSeg)
+
+    def smoothChange(self):
+        self.viewerSlice.setSmoothKernel(self.GaussianBox.sp.value())
+
+    def thredSeg(self):
+        self.viewerSlice.thredSeg(self.ThredBox.sp.value())
+
+    def resampleChangeX(self,size):
+        self.__resampleX = size
+
+    def resampleChangeY(self,size):
+        self.__resampleY = size
+
+    def resampleChangeZ(self,size):
+        self.__resampleZ = size
+
+    def resample(self):
+        self.viewerSlice.resample((self.__resampleZ,self.__resampleY, self.__resampleX))
 
     def setImage(self, image):
         imageArray = sitk.GetArrayFromImage(image)
@@ -739,6 +918,23 @@ class volumeViewerWidget(QWidget):
         self.viewerSlice.setLabel(label)
         self.sliderOpacity.show()
 
+    def setPreprocessMethod(self,method = 'Gaussian'):
+        if method =='Median':
+            self.GaussianBox.labelText.setText(method + str(' Kernel Size(odd)'))
+            self.viewerSlice.setSmoothMethod(method)
+            self.GaussianBox.show()
+        elif method =='Resample':
+            self.ResampleBox.show()
+        else:
+            self.GaussianBox.labelText.setText(method+str(' Kernel Size'))
+            self.viewerSlice.setSmoothMethod(method)
+            self.GaussianBox.show()
+
+    def setSegMethod(self,method = 'Threshold'):
+        if method =='Threshold':
+            self.ThredBox.show()
+
+
     def setROI(self,ax = 's'):
         self.viewerSlice.setROI(ax)
 
@@ -756,6 +952,9 @@ class volumeViewerWidget(QWidget):
 
     def clrAllROI(self):
         self.viewerSlice.clrAllROI()
+
+    def denoise(self):
+        self.viewerSlice.denoise()
 
 
     def mousePressEvent(self, event):
