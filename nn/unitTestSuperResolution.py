@@ -12,7 +12,7 @@ if __name__ == '__main__':
         image = sitk.ReadImage(sys.argv[1])
     else:
         image = sitk.ReadImage( \
-                '/mnt/workspace/cartilage/PDslp1/hm/a103513699.nii.gz')
+                '/home/liuxy/Radiomics_System/nn/segmentation/test.nii')
     # already histogram matched
     array = sitk.GetArrayFromImage(image)
     array = array[:,::-1,:]
@@ -25,13 +25,14 @@ if __name__ == '__main__':
     out = c(imageS2I)
     outArray = sitk.GetArrayFromImage(out)
     print(outArray.max(), outArray.min())
-    n, bins, patches = plt.hist(outArray.ravel(), 100, range=[-1,1])
+    print(np.shape(outArray))
+    #n, bins, patches = plt.hist(outArray.ravel(), 100, range=[-1,1])
     #,density=False)
     #plt.axis([-1, 1, 0, 1])
-    plt.ylabel('pixels (log)')
-    plt.xlabel('residual')
-    plt.yscale('log')
-    plt.grid(True)
-    plt.show()
+    #plt.ylabel('pixels (log)')
+    #plt.xlabel('residual')
+    #plt.yscale('log')
+    #plt.grid(True)
+    #plt.show()
     #print(c.evaluate(imageS2I))
 

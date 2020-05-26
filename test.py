@@ -1,15 +1,25 @@
 import SimpleITK as sitk
 import numpy as np
 
-img = sitk.ReadImage('B2_Label.nii')
-npa = sitk.GetArrayFromImage(img)
-print(np.shape(npa))
-print(np.unique(npa))
-
-a = npa[15, :, :]
-
-print(np.shape(a))
-print(np.unique(a))
+a = sitk.ReadImage('.\\nn\\superResolution\\test_SRout.nii')
+arr = sitk.GetArrayFromImage(a)
+arr = arr[:,::-1,:]
+sitk.WriteImage(sitk.GetImageFromArray(arr), 'test_out_trans.nii')
+#
+# img = sitk.ReadImage('B2_CESAG.dcm.nii')
+# print(img.GetDirection())
+# npa = sitk.GetArrayFromImage(img)
+# print(np.shape(npa))
+# img.SetDirection(a.GetDirection())
+# npa1=sitk.GetArrayFromImage(img)
+# print(np.shape(npa1))
+# print(img.GetDirection())
+# print(np.unique(npa))
+#
+# a = npa[15, :, :]
+#
+# print(np.shape(a))
+# print(np.unique(a))
 
 # resample = sitk.ResampleImageFilter()
 # resample.SetOutputDirection(image.GetDirection())

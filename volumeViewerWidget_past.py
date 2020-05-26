@@ -271,12 +271,12 @@ class SliderWithTextWidget(QWidget):
         #self.sliderIndex.setSliderPosition(self.__visibleIndex + 1)
 
 
-class volumeViewerWidget(QWidget):
+class volumeViewerWidgetPast(QWidget):
     displayPercentile = 0.001
     opacityMax = 100
     indexMouseRightScale = 1/16
     def __init__(self, parent=None, colormap=None):
-        super(volumeViewerWidget, self).__init__(parent)
+        super(volumeViewerWidgetPast, self).__init__(parent)
         self.sliderOpacity = SliderWithTextWidget(self, text='Opacity')
         self.sliderIndex   = SliderWithTextWidget(self, text=' Slice ')
         self.viewerSlice =  volumeSliceViewerWidget(self, colormap=colormap)
@@ -300,7 +300,7 @@ class volumeViewerWidget(QWidget):
                 lambda x: self.viewerSlice.setOpacity(x/self.opacityMax))
 
     def setImage(self, image):
-        imageArray = sitk.GetArrayFromImage(image)
+        imageArray = sitk.GetArrayFromImage(image)[:,::-1,:]
         minVal = np.percentile(imageArray.ravel(), \
                 self.displayPercentile*100)
         maxVal = np.percentile(imageArray.ravel(), \
@@ -316,17 +316,17 @@ class volumeViewerWidget(QWidget):
         self.viewerSlice.setLabel(label)
         self.sliderOpacity.show()
 
-    def mouseMoved(evt):
-        pos = evt[0]  ## using signal proxy turns original arguments into a tuple
-        if p1.sceneBoundingRect().contains(pos):
-            mousePoint = vb.mapSceneToView(pos)
-            index = int(mousePoint.x())
-            if index > 0 and index < len(data1):
-                label.setText(
-                    "<span style='font-size: 12pt'>x=%0.1f,   <span style='color: red'>y1=%0.1f</span>,   <span style='color: green'>y2=%0.1f</span>" % (
-                    mousePoint.x(), data1[index], data2[index]))
-            vLine.setPos(mousePoint.x())
-            hLine.setPos(mousePoint.y())
+    # def mouseMoved(evt):
+    #     pos = evt[0]  ## using signal proxy turns original arguments into a tuple
+    #     if p1.sceneBoundingRect().contains(pos):
+    #         mousePoint = vb.mapSceneToView(pos)
+    #         index = int(mousePoint.x())
+    #         if index > 0 and index < len(data1):
+    #             label.setText(
+    #                 "<span style='font-size: 12pt'>x=%0.1f,   <span style='color: red'>y1=%0.1f</span>,   <span style='color: green'>y2=%0.1f</span>" % (
+    #                 mousePoint.x(), data1[index], data2[index]))
+    #         vLine.setPos(mousePoint.x())
+    #         hLine.setPos(mousePoint.y())
 
     def mousePressEvent(self, event):
         if (event.button() == Qt.RightButton):
@@ -334,7 +334,7 @@ class volumeViewerWidget(QWidget):
             self.__mouseRightPressPos = event.pos()
             self.__mouseRightIndex = self.sliderIndex.value()
         else:
-            super(volumeViewerWidget, self).mousePressEvent(event)
+            super(volumeViewerWidgetPast, self).mousePressEvent(event)
             
     def mouseMoveEvent(self, event):
         if self.__mouseRightPressing and (event.buttons() & Qt.RightButton):
@@ -344,13 +344,13 @@ class volumeViewerWidget(QWidget):
                     round(delta.y()*self.indexMouseRightScale) + \
                     self.__mouseRightIndex)
         else:
-            super(volumeViewerWidget, self).mouseMoveEvent(event)
+            super(volumeViewerWidgetPast, self).mouseMoveEvent(event)
     
     def mouseReleaseEvent(self, event):
         if (event.button() == Qt.RightButton):
             self.__mouseRightPressing = False
         else:
-            super(volumeViewerWidget, self).mouseReleaseEvent(event)
+            super(volumeViewerWidgetPast, self).mouseReleaseEvent(event)
 
 if __name__ == '__main__':
     import sys, os, time

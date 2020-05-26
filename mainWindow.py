@@ -7,8 +7,8 @@ import cv2
 import numpy as np
 import SimpleITK as sitk
 import matplotlib.pyplot as plt
-from ReadSagittalPD import ReadImage, ReadROI
-
+from ReadSagittalPD import ReadImage, ReadROI, ReadSagittalPDs
+from PyQt5 import QtWidgets,QtCore
 from PyQt5.QtWidgets import QGridLayout, \
         QDesktopWidget, QMainWindow, QApplication, qApp, \
         QDockWidget, QWidget, QAction, QTableWidget, QTableWidgetItem, \
@@ -18,13 +18,16 @@ from PyQt5.QtWidgets import QGridLayout, \
 from PyQt5.QtCore import Qt, pyqtSlot, QSize
 
 from volumeViewerWidget import volumeViewerWidget, volumeSliceViewerWidget
+from volumeViewerWidget_past import volumeViewerWidgetPast
 from featureDispWidget import featureDispWidget
 from statAnalyzelWidget import statAnalyzeWidget
 from clsABWidget import clsABWidget
+from dicomInfoWidget import dicomInfoWidget
 from gradeDispWidget import gradeDispWidget
 from curveWidget import curveWidget
 
 from mainLogic import mainLogic
+
 
 class dicomSelectDialog(QDialog):
     def __init__(self, images, parent=None):
@@ -32,20 +35,20 @@ class dicomSelectDialog(QDialog):
         self.__images = images
         self.btnOK = QPushButton('OK')
         self.btnQuit = QPushButton('Cancel')
-        #self.table = QTableWidget(len(images), 3)
+        self.table = QTableWidget(len(images), 3)
         hbox = QHBoxLayout()
         hbox.addStretch(1)
         hbox.addWidget(self.btnOK)
         hbox.addWidget(self.btnQuit)
         vbox = QVBoxLayout(self)
-        #vbox.addWidget(self.table, stretch=1)
+        vbox.addWidget(self.table, stretch=1)
         vbox.addLayout(hbox)
         self.setLayout(vbox)
-        #self.__makeTable()
+        self.__makeTable()
         self.selectedIndex = None
-        
+
         self.btnQuit.clicked.connect(self.reject)
-        #self.btnOK.clicked.connect( \
+        # self.btnOK.clicked.connect( \
         #        lambda x, self=self: self.done(self.table.currentRow()))
         self.btnOK.clicked.connect(self.btnOKClicked)
 
@@ -53,38 +56,39 @@ class dicomSelectDialog(QDialog):
         self.selectedIndex = self.table.currentRow()
         self.accept()
 
-    #def __makeTable(self):
-        #labels = ['PatientID', 'SeriesDescription', 'Size']
-        # self.table.setHorizontalHeaderLabels(labels)
-        # for i, image in enumerate(self.__images):
-        #     self.table.setItem(i, 0, \
-        #             QTableWidgetItem(str(image.GetMetaData('0010|0020'))))
-        #     self.table.setItem(i, 1, \
-        #             QTableWidgetItem(str(image.GetMetaData('0008|103e'))))
-        #     self.table.setItem(i, 2, \
-        #             QTableWidgetItem(str(image.GetSize())))
-        # self.table.resizeColumnsToContents()
-        # self.table.adjustSize()
+    def __makeTable(self):
+        labels = ['PatientID', 'SeriesDescription', 'Size']
+        self.table.setHorizontalHeaderLabels(labels)
+        for i, image in enumerate(self.__images):
+            self.table.setItem(i, 0,\
+                               QTableWidgetItem(str(image.GetMetaData('0010|0020'))))
+            self.table.setItem(i, 1, \
+                               QTableWidgetItem(str(image.GetMetaData('0008|103e'))))
+            self.table.setItem(i, 2, \
+                               QTableWidgetItem(str(image.GetSize())))
+        self.table.resizeColumnsToContents()
+        self.table.adjustSize()
 
 
 class controlPannelWidget(QWidget):
     def __init__(self, parent=None):
         super(controlPannelWidget, self).__init__(parent)
-        self.btnLoad = QPushButton('Load Image')
-        self.btnROI = QPushButton('Load ROI')
+        # self.btnLoad = QPushButton('Load Image')
+        # self.btnROI = QPushButton('Load ROI')
         #self.btnLoad.setToolTip('Load a dicom study from directory.')
-        self.btnExt = QPushButton('Feature Extraction')
-        self.btnSel = QPushButton('Feature Selection')
+        # self.btnExt = QPushButton('Feature Extraction')
+        # self.btnSel = QPushButton('Feature Selection')
         # self.btnCla = QPushButton('Predict Grade')
         # self.btnRef = QPushButton('Get Reference')
         # self.btnSeg = QPushButton('Auto Segment')
         # self.btnSR = QPushButton('Enhance Resolution')
 
         vbox = QVBoxLayout(self)
-        vbox.addWidget(self.btnLoad)
-        vbox.addWidget(self.btnROI)
-        vbox.addWidget(self.btnExt)
-        vbox.addWidget(self.btnSel)
+        # vbox.addWidget(self.btnLoad)
+        # vbox.addWidget(self.btnROI)
+        # vbox.addWidget(self.btnExt)
+        # vbox.addWidget(self.btnSel)
+        vbox.addWidget(self.btnSR)
         # vbox.addWidget(self.btnSeg)
         # vbox.addWidget(self.btnCla)
         # vbox.addWidget(self.btnRef)
@@ -124,8 +128,8 @@ class annotationPannelWidget(QWidget):
         vbox.addWidget(self.btnAccROI)
         vbox.addWidget(self.btnClrSelROI)
         vbox.addWidget(self.btnClrAllROI)
-        vbox.addWidget(self.btnSaveSelROI)
-        vbox.addWidget(self.btnSaveAllROI)
+        # vbox.addWidget(self.btnSaveSelROI)
+        # vbox.addWidget(self.btnSaveAllROI)
 
         self.setLayout(vbox)
 
@@ -163,7 +167,70 @@ class mainWindow(QMainWindow):
         self.initUI_Layout()
         self.show()
 
+        #
+        # fileMenu = menubar.addMenu('Pre-processing')
+        # fileMenu.addAction(DenoiseAct)
+        #
+        # self.menutools = QMenu(self.menubar)
+        # self.menutools.setObjectName("menutools")
+        # self.menuload = QtWidgets.QMenu(self.menutools)
+        # self.menuload.setObjectName("menuload")
+        # self.actionimage = QtWidgets.QAction(MainWindow)
+        # self.actionimage.setObjectName("actionimage")
+        # self.action_nii_files = QtWidgets.QAction(MainWindow)
+        # self.action_nii_files.setObjectName("action_nii_files")
+        # self.menuload.addAction(self.actionimage)
+        # self.menuload.addAction(self.action_nii_files)
+        #
+        # self.menubar.addAction(self.menutools.menuAction())
+
     def initUI_Menubar(self):
+        menubar = self.menuBar()
+        self.menuLoad = menubar.addMenu('Load')
+        # self.menutools = QMenu(menubar)
+        # self.menutools.setObjectName("menutools")
+        self.menuImage = self.menuLoad.addMenu('Image')
+        self.menuROI = self.menuLoad.addMenu('ROI')
+        # self.menuload.setObjectName("menuload")
+        self.actionimagedir = QAction('DICOM DIR', self)
+        self.actionimagedir.triggered.connect(self.actLoadImgDir)
+        self.actionimagefiles = QAction('NIfTI File',self)
+        self.actionimagefiles.triggered.connect(self.actLoadStudy)
+
+        self.actionROIdir = QAction('DICOM DIR', self)
+        self.actionROIdir.triggered.connect(self.actLoadROIDir)
+        self.actionROIfiles = QAction('NIfTI File',self)
+        self.actionROIfiles.triggered.connect(self.actLoadROI)
+        self.menuImage.addAction(self.actionimagedir)
+        self.menuImage.addAction(self.actionimagefiles )
+        self.menuROI.addAction(self.actionROIdir)
+        self.menuROI.addAction(self.actionROIfiles)
+
+        self.menuSave = menubar.addMenu('Save')
+        self.actionSaveImg = QAction('Image', self)
+        self.actionSaveImg.triggered.connect(self.actSaveImg)
+        self.actionSaveSelROI= QAction('Selected ROI', self)
+        self.actionSaveSelROI.triggered.connect(self.actSaveSelROI)
+        self.actionSaveAllROI = QAction('All ROI', self)
+        self.actionSaveAllROI.triggered.connect(self.actSaveAllROI)
+        self.menuSave.addAction(self.actionSaveImg)
+        self.menuSave.addAction(self.actionSaveSelROI)
+        self.menuSave.addAction(self.actionSaveAllROI)
+
+        self.menuRadiomics= menubar.addMenu('Radiomics')
+        self.menuExt = self.menuRadiomics.addMenu('Feature Extraction')
+        self.actionPyExt = QAction('PyRadiomics', self)
+        self.actionPyExt.triggered.connect(self.actFeatureExt)
+        self.actionCuExt = QAction('cuRadiomics(2D only)', self)
+        self.actionCuExt.triggered.connect(self.actCuFeatureExt)
+        self.menuExt.addAction(self.actionPyExt)
+        self.menuExt.addAction(self.actionCuExt)
+
+        self.actionFeatSel= QAction('Feature Selection', self)
+        self.actionFeatSel.triggered.connect(self.child_stat.show)
+        self.menuRadiomics.addAction(self.actionFeatSel)
+
+
         LogiRegAct = QAction('Logit Regression', self)
         LogiRegAct.triggered.connect(self.cls_Logi.show)
 
@@ -177,6 +244,10 @@ class mainWindow(QMainWindow):
 
         DenoiseAct = QAction('Wavelet Denoise', self)
         DenoiseAct.triggered.connect(self.actDenoise)
+
+
+        ThredAct = QAction('Threshold Seg', self)
+        ThredAct.triggered.connect(self.actThreshold)
 
         GasSmoothAct = QAction('Guassian Smooth', self)
         GasSmoothAct.triggered.connect(self.actGasSmooth)
@@ -193,20 +264,22 @@ class mainWindow(QMainWindow):
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('Pre-processing')
         fileMenu.addAction(DenoiseAct)
+        fileMenu.addAction(ThredAct)
         fileMenu.addAction(GasSmoothAct)
         fileMenu.addAction(MeanSmoothAct)
         fileMenu.addAction(MedSmoothAct)
         fileMenu.addAction(ResampleAct)
 
-        ThredAct = QAction('Threshold Seg', self)
-        ThredAct.triggered.connect(self.actThreshold)
 
-        DPSegAct = QAction('Deep Learning', self)
+        SRAct = QAction('Super Resolution', self)
+        SRAct.triggered.connect(self.actGetSR)
+
+        DPSegAct = QAction('Segmentation', self)
         DPSegAct.triggered.connect(self.actDPSeg)
 
         segbar = self.menuBar()
-        segMenu = segbar.addMenu('Segmentation')
-        segMenu.addAction(ThredAct)
+        segMenu = segbar.addMenu('Deep Learning')
+        segMenu.addAction(SRAct)
         segMenu.addAction(DPSegAct)
 
         #loadStudyAct = QAction('Load Dicom Study', self)
@@ -224,13 +297,13 @@ class mainWindow(QMainWindow):
     def initUI_Layout(self):
         self.volumeViewer = volumeViewerWidget(self)
         self.FeatureDisp = featureDispWidget(self)
-        #self.dicomInfo = dicomInfoWidget(self)
-        self.controlPanel = controlPannelWidget(self)
+        self.dicomInfo = dicomInfoWidget(self)
+        # self.controlPanel = controlPannelWidget(self)
         self.annotationPanel = annotationPannelWidget(self)
         #self.FeatureSel = featureSelWidget(self)
         #self.gradeDisp = gradeDispWidget(self)
         # self.refViewer = curveWidget(self)
-        # self.SRViewer = volumeViewerWidget(self)
+        self.SRViewer = volumeViewerWidget(self)
         colormap = (plt.cm.bwr(np.array( \
                 list([x for x in range(256)]), dtype=np.uint8 \
                 ))*255).astype(np.uint8).reshape(256,1,4) #RGBA
@@ -238,19 +311,37 @@ class mainWindow(QMainWindow):
         # dock and central widget
         # volumeViewer
         self.setCentralWidget(self.volumeViewer)
+
+        # dicomInfo
+        self.dockDicomInfo = QDockWidget("DICOM Info", self)
+        self.dockDicomInfo.setObjectName("dockDicomInfo")
+        self.addDockWidget(Qt.RightDockWidgetArea, self.dockDicomInfo)
+        self.dockDicomInfo.setWidget(self.dicomInfo)
         # FeatureExtract
         self.dockFeatureDisp = QDockWidget("Extracted Feature", self)
         self.dockFeatureDisp.setObjectName("dockFeatureDisp")
         self.addDockWidget(Qt.RightDockWidgetArea, self.dockFeatureDisp)
         self.dockFeatureDisp.setWidget(self.FeatureDisp)
+        self.tabifyDockWidget(self.dockDicomInfo, self.dockFeatureDisp)
 
         # Annoation
         self.dockAnnotation = QDockWidget("Annotation Tools", self)
         self.dockAnnotation.setObjectName("dockAnnotation")
         self.addDockWidget(Qt.RightDockWidgetArea, self.dockAnnotation)
         self.dockAnnotation.setWidget(self.annotationPanel)
-        self.tabifyDockWidget(self.dockAnnotation, self.dockFeatureDisp)
+        self.dockAnnotation.showMinimized()
+        self.resizeDocks([self.dockAnnotation, self.dockFeatureDisp], \
+                [1,10], Qt.Vertical)
+        # self.tabifyDockWidget(self.dockAnnotation, self.dockFeatureDisp)
 
+        # controlPanel
+        # self.dockControlPanel = QDockWidget("Control Panel", self)
+        # self.dockControlPanel.setObjectName("dockControlPanel")
+        # self.addDockWidget(Qt.RightDockWidgetArea, self.dockControlPanel)
+        # self.dockControlPanel.setWidget(self.controlPanel)
+        # self.dockControlPanel.showMinimized()
+        # self.resizeDocks([self.dockControlPanel, self.dockFeatureDisp], \
+        #         [1,10], Qt.Vertical)
         # FeatureSelection
         # self.dockFeatureSel = QDockWidget("Selected Feature", self)
         # self.dockFeatureSel.setObjectName("dockFeatureSel")
@@ -258,11 +349,7 @@ class mainWindow(QMainWindow):
         # self.dockFeatureSel.setWidget(self.FeatureSel)
         # self.tabifyDockWidget(self.dockFeatureDisp, self.dockFeatureSel)
 
-        # # dicomInfo
-        # self.dockDicomInfo = QDockWidget("DICOM Info", self)
-        # self.dockDicomInfo.setObjectName("dockDicomInfo")
-        # self.addDockWidget(Qt.RightDockWidgetArea, self.dockDicomInfo)
-        # self.dockDicomInfo.setWidget(self.dicomInfo)
+
         # # gradeDisp
         # self.dockGradeDisp = QDockWidget("Grade (Prediction)", self)
         # self.dockGradeDisp.setObjectName("dockGradeDisp")
@@ -270,14 +357,7 @@ class mainWindow(QMainWindow):
         # self.dockGradeDisp.setWidget(self.gradeDisp)
         # self.tabifyDockWidget(self.dockDicomInfo, self.dockGradeDisp)
 
-        # controlPanel
-        self.dockControlPanel = QDockWidget("Control Panel", self)
-        self.dockControlPanel.setObjectName("dockControlPanel")
-        self.addDockWidget(Qt.RightDockWidgetArea, self.dockControlPanel)
-        self.dockControlPanel.setWidget(self.controlPanel)
-        self.dockControlPanel.showMinimized()
-        self.resizeDocks([self.dockControlPanel, self.dockFeatureDisp], \
-                [1,10], Qt.Vertical)
+
         # reference image and SR image
         # self.dockRefViewer = QDockWidget("Reference", self)
         # self.dockRefViewer.setObjectName("dockRefViewer")
@@ -285,25 +365,25 @@ class mainWindow(QMainWindow):
         # self.dockRefViewer.setWidget(self.refViewer)
         # self.dockRefViewer.setFloating(True)
         # self.dockRefViewer.setVisible(False)
-        # self.dockSRViewer = QDockWidget("Super-Resolution", self)
-        # self.dockSRViewer.setObjectName("dockSRViewer")
-        # self.addDockWidget(Qt.LeftDockWidgetArea, self.dockSRViewer)
-        # self.dockSRViewer.setWidget(self.SRViewer)
-        # self.dockSRViewer.setFloating(True)
-        # self.dockSRViewer.setVisible(False)
+        self.dockSRViewer = QDockWidget("Super-Resolution", self)
+        self.dockSRViewer.setObjectName("dockSRViewer")
+        self.addDockWidget(Qt.LeftDockWidgetArea, self.dockSRViewer)
+        self.dockSRViewer.setWidget(self.SRViewer)
+        self.dockSRViewer.setFloating(True)
+        self.dockSRViewer.setVisible(False)
 
     def initSignals(self):
-        self.controlPanel.btnLoad.clicked.connect(self.actLoadStudy)
-        self.controlPanel.btnROI.clicked.connect(self.actLoadROI)
-        self.controlPanel.btnExt.clicked.connect(self.actFeatureExt)
-        self.controlPanel.btnSel.clicked.connect(self.child_stat.show)
+        # self.controlPanel.btnLoad.clicked.connect(self.actLoadStudy)
+        # self.controlPanel.btnROI.clicked.connect(self.actLoadROI)
+        # self.controlPanel.btnExt.clicked.connect(self.actFeatureExt)
+        # self.controlPanel.btnSel.clicked.connect(self.child_stat.show)
 
         self.annotationPanel.btnDoAnn.clicked.connect(self.actDoAnn)
         self.annotationPanel.btnAccROI.clicked.connect(self.actAccROI)
         self.annotationPanel.btnClrSelROI.clicked.connect(self.actClrSelROI)
         self.annotationPanel.btnClrAllROI.clicked.connect(self.actClrAllROI)
-        self.annotationPanel.btnSaveSelROI.clicked.connect(self.actSaveSelROI)
-        self.annotationPanel.btnSaveAllROI.clicked.connect(self.actSaveAllROI)
+        # self.annotationPanel.btnSaveSelROI.clicked.connect(self.actSaveSelROI)
+        # self.annotationPanel.btnSaveAllROI.clicked.connect(self.actSaveAllROI)
 
         # self.controlPanel.btnCla.clicked.connect(self.actGetGrade)
         # self.controlPanel.btnSeg.clicked.connect(self.actGetSeg)
@@ -372,6 +452,58 @@ class mainWindow(QMainWindow):
         pass
 
     @pyqtSlot()
+    def actLoadImgDir(self,directory=None):
+        start = time.time()
+        self.statusBar().showMessage('Loading Study...')
+        if directory is None:
+            dialog = QFileDialog(self)
+            dialog.setFileMode(QFileDialog.DirectoryOnly)
+            dialog.setViewMode(QFileDialog.List)
+            dialog.setOption(QFileDialog.ShowDirsOnly, True)
+            if dialog.exec_():
+                directory = str(dialog.selectedFiles()[0])
+            else:
+                self.statusBar().showMessage( \
+                    'Ready ({:.2f}s)'.format(time.time() - start))
+                return
+        try:
+            images = ReadSagittalPDs(directory)
+        except Exception as err:
+            msgBox = QMessageBox(self)
+            msgBox.setText(str(type(err)) + str(err))
+            msgBox.exec()
+            self.statusBar().showMessage( \
+                'Ready ({:.2f}s)'.format(time.time() - start))
+            return
+        selectDialog = dicomSelectDialog(images)
+        if selectDialog.exec_():
+            image = images[selectDialog.selectedIndex]
+        else:
+            self.statusBar().showMessage( \
+                'Ready ({:.2f}s)'.format(time.time() - start))
+            return
+
+        # get image data
+        # image_out = sitk.GetImageFromArray(sitk.GetArrayFromImage(image))
+        #
+        # # setup other image characteristics
+        # image_out.SetOrigin(image.GetOrigin())
+        # image_out.SetSpacing(image.GetSpacing())
+        # # set to RAI
+        # image_out.SetDirection(tuple(-0.0, 0.0, -1.0, 1.0, -0.0, 0.0, 0.0, -1.0, 0.0))
+        # # sitk.WriteImage(image_out, 'test.mha')
+        # image = image_out
+        self.main.setImage(image)
+        self.volumeViewer.setImage(image)
+        self.dicomInfo.setImage(image)
+        self.dockDicomInfo.setVisible(True)
+        # self.dockRefViewer.setVisible(False)
+        self.dockSRViewer.setVisible(False)
+        # self.gradeDisp.setGrade(None)
+        self.statusBar().showMessage( \
+            'Ready ({:.2f}s)'.format(time.time() - start))
+        return
+
     def actLoadStudy(self, directory=None):
         start = time.time()
         self.statusBar().showMessage('Loading Study...')
@@ -411,13 +543,52 @@ class mainWindow(QMainWindow):
         #     return
         self.main.setImage(image)
         self.volumeViewer.setImage(image)
-        #self.dicomInfo.setImage(image)
-        # self.dockDicomInfo.setVisible(True)
+        self.dicomInfo.setImage(image)
+        self.dockDicomInfo.setVisible(True)
         # self.dockRefViewer.setVisible(False)
-        # self.dockSRViewer.setVisible(False)
+        self.dockSRViewer.setVisible(False)
         # self.gradeDisp.setGrade(None)
         self.statusBar().showMessage( \
                 'Ready ({:.2f}s)'.format(time.time() - start))
+        return
+
+    def actLoadROIDir(self,directory=None):
+        start = time.time()
+        self.statusBar().showMessage('Loading Study...')
+        if directory is None:
+            dialog = QFileDialog(self)
+            dialog.setFileMode(QFileDialog.DirectoryOnly)
+            dialog.setViewMode(QFileDialog.List)
+            dialog.setOption(QFileDialog.ShowDirsOnly, True)
+            if dialog.exec_():
+                directory = str(dialog.selectedFiles()[0])
+            else:
+                self.statusBar().showMessage( \
+                    'Ready ({:.2f}s)'.format(time.time() - start))
+                return
+        try:
+            ROIs = ReadSagittalPDs(directory)
+        except Exception as err:
+            msgBox = QMessageBox(self)
+            msgBox.setText(str(type(err)) + str(err))
+            msgBox.exec()
+            self.statusBar().showMessage( \
+                'Ready ({:.2f}s)'.format(time.time() - start))
+            return
+        selectDialog = dicomSelectDialog(images)
+        if selectDialog.exec_():
+            ROI = ROIs[selectDialog.selectedIndex]
+        else:
+            self.statusBar().showMessage( \
+                'Ready ({:.2f}s)'.format(time.time() - start))
+            return
+        self.main.setROI(ROI)
+        self.volumeViewer.setLabel(ROI)
+        # self.dockRefViewer.setVisible(False)
+        self.dockSRViewer.setVisible(False)
+        # self.gradeDisp.setGrade(None)
+        self.statusBar().showMessage( \
+            'Ready ({:.2f}s)'.format(time.time() - start))
         return
 
     def actLoadROI(self, directory=None):
@@ -429,7 +600,6 @@ class mainWindow(QMainWindow):
                                              "Files (*.nii *.dcm)")
         print(directory)
         directory = str(directory[0])
-
         try:
             ROI = ReadROI(directory)
         except Exception as err:
@@ -442,7 +612,7 @@ class mainWindow(QMainWindow):
 
         self.main.setROI(ROI)
         self.volumeViewer.setLabel(ROI)
-        #self.dicomInfo.setROI(ROI)
+        self.dockSRViewer.setVisible(False)
 
         self.statusBar().showMessage( \
                 'Ready ({:.2f}s)'.format(time.time() - start))
@@ -467,7 +637,11 @@ class mainWindow(QMainWindow):
 
         return
 
+    def actCuFeatureExt(self):
+        pass
 
+    def actSaveImg(self):
+        pass
 
 
     # def actFeatureSel(self):

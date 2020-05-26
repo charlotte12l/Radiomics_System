@@ -1,6 +1,0 @@
-{
-  "hmTemplate" : "./hmTemplate.nii.gz",
-  "trainedModel": "./model_seg.pkl",
-  "crop": [512, 512],
-  "voxelSpacing": [0.3333333333333333, 0.3333333333333333]
-}

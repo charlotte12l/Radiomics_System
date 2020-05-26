@@ -57,7 +57,7 @@ class superResolution(object):
         targetSpacing = np.array([0.3906,0.3906])
         targetShape = np.array((256,256))
         spacing = np.array(image.GetSpacing()[::-1])[1:]
-        model = self.model
+        model = self.model.eval()
         data = sitk.GetArrayFromImage(image)
         data = data[:,:,::-1]
         minmax = np.quantile(data.flatten(), (quantile, 1-quantile))
@@ -78,10 +78,12 @@ class superResolution(object):
         out = torch.Tensor(out).cuda().unsqueeze(0).unsqueeze(0)
         out = torch.nn.functional.interpolate( \
                 out, size=outsize, mode='trilinear', align_corners=True)
-        out = model(out)[0][0].cpu().numpy()
+        with torch.no_grad():
+            out = model(out)[0][0].cpu().numpy()
         out = out*(minmax[1]-minmax[0]) + minmax[0]
         out = out[:,:,::-1]
         out = sitk.GetImageFromArray(out)
+        sitk.WriteImage(out, 'test_SRout.nii')
         #out.CopyInformation(image)
         return out
 

@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menutools">
+    <property name="title">
+     <string>Load</string>
+    </property>
+    <widget class="QMenu" name="menuload">
+     <property name="title">
+      <string>Image</string>
+     </property>
+     <addaction name="actionimage"/>
+     <addaction name="action_nii_files"/>
+    </widget>
+    <widget class="QMenu" name="menuROI">
+     <property name="title">
+      <string>ROI</string>
+     </property>
+     <addaction name="actionDICOM_DIR"/>
+     <addaction name="action_nii_Files"/>
+    </widget>
+    <addaction name="separator"/>
+    <addaction name="menuload"/>
+    <addaction name="menuROI"/>
+   </widget>
+   <widget class="QMenu" name="menuSave">
+    <property name="title">
+     <string>Save</string>
+    </property>
+    <widget class="QMenu" name="menuROI_2">
+     <property name="title">
+      <string>ROI</string>
+     </property>
+     <addaction name="actionSelected_ROI"/>
+     <addaction name="actionAll_ROI"/>
+    </widget>
+    <addaction name="actionImage"/>
+    <addaction name="menuROI_2"/>
+   </widget>
+   <widget class="QMenu" name="menuPreProcess">
+    <property name="title">
+     <string>PreProcess</string>
+    </property>
+    <addaction name="actionWavelet_Denoise"/>
+    <addaction name="actionSuper_Resolution"/>
+    <addaction name="actionGuassian_Smooth"/>
+    <addaction name="actionMean_Smooth"/>
+    <addaction name="actionMedian_Smooth"/>
+    <addaction name="actionResample"/>
+   </widget>
+   <widget class="QMenu" name="menuClassification">
+    <property name="title">
+     <string>Classification</string>
+    </property>
+    <addaction name="actionLogit_Regression"/>
+    <addaction name="actionSupport_Vector_Classification"/>
+   </widget>
+   <widget class="QMenu" name="menuSegmentation">
+    <property name="title">
+     <string>Segmentation</string>
+    </property>
+    <addaction name="actionThreshold"/>
+   </widget>
+   <addaction name="menutools"/>
+   <addaction name="menuSave"/>
+   <addaction name="menuPreProcess"/>
+   <addaction name="menuClassification"/>
+   <addaction name="menuSegmentation"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionimage">
+   <property name="text">
+    <string>DICOM DIR</string>
+   </property>
+  </action>
+  <action name="action_nii_files">
+   <property name="text">
+    <string>*nii files</string>
+   </property>
+  </action>
+  <action name="actionDICOM_DIR">
+   <property name="text">
+    <string>DICOM DIR</string>
+   </property>
+  </action>
+  <action name="actionImage">
+   <property name="text">
+    <string>Image</string>
+   </property>
+  </action>
+  <action name="actionSelected_ROI">
+   <property name="text">
+    <string>Selected ROI</string>
+   </property>
+  </action>
+  <action name="actionAll_ROI">
+   <property name="text">
+    <string>All ROI</string>
+   </property>
+  </action>
+  <action name="action_nii_Files">
+   <property name="text">
+    <string>*.nii files</string>
+   </property>
+  </action>
+  <action name="actionWavelet_Denoise">
+   <property name="text">
+    <string>Wavelet Denoise</string>
+   </property>
+  </action>
+  <action name="actionSuper_Resolution">
+   <property name="text">
+    <string>Super Resolution</string>
+   </property>
+  </action>
+  <action name="actionGuassian_Smooth">
+   <property name="text">
+    <string>Guassian Smooth</string>
+   </property>
+  </action>
+  <action name="actionMean_Smooth">
+   <property name="text">
+    <string>Mean Smooth</string>
+   </property>
+  </action>
+  <action name="actionMedian_Smooth">
+   <property name="text">
+    <string>Median Smooth</string>
+   </property>
+  </action>
+  <action name="actionResample">
+   <property name="text">
+    <string>Resample</string>
+   </property>
+  </action>
+  <action name="actionLogit_Regression">
+   <property name="text">
+    <string>Logit Regression</string>
+   </property>
+  </action>
+  <action name="actionSupport_Vector_Classification">
+   <property name="text">
+    <string>Support Vector Classification</string>
+   </property>
+  </action>
+  <action name="actionThreshold">
+   <property name="text">
+    <string>Threshold</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

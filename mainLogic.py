@@ -5,22 +5,28 @@ from ReadSagittalPD import ReadSagittalPDs
 from simpleThickness import getCartilageThickness
 from analysis.FeatureExtraction import  FeatureExt
 from analysis.FeatureSelection import  FeatureSel
-
+from nn.superResolution import superResolution
+from nn.seg import segmentationJoint
 import SimpleITK as sitk
 import numpy as np
 
 class mainLogic(object):
     def __init__(self):
         super(mainLogic, self).__init__()
-        #self.gradeNN = classificationGrade()
-        #self.segmentationJointNN = segmentationJoint()
-        #self.superResolutionNN = superResolution()
+
+        # uncomment the lines below if you has CUDA on your computer
+        # self.segmentationJointNN = segmentationJoint()
+        # self.superResolutionNN = superResolution()
+        # comment the line below if you has CUDA on your computer
+        self.segmentationJointNN = None
+        self.superResolutionNN = None
+
         self.featureExt = FeatureExt()
         self.featureSel = FeatureSel()
         self.__image = None
         self.__ROI = None
         self.__feature_extracted = None
-        # self.__seg = None
+        self.__seg = None
         # self.__grade = None
         # self.__superResolution = None
         # self.__thickness = None
@@ -34,9 +40,9 @@ class mainLogic(object):
         self.__image = image
         self.__feature_extracted = None
         self.__feature_selected = None
-        # self.__seg = None
+        self.__seg = None
         # self.__grade = None
-        # self.__superResolution = None
+        self.__superResolution = None
         # self.__thickness = None
         return True
 
@@ -46,9 +52,6 @@ class mainLogic(object):
         self.__ROI = ROI
         self.__feature_extracted = None
         self.__feature_selected = None
-        # self.__grade = None
-        # self.__superResolution = None
-        # self.__thickness = None
         return True
 
     def getFeature(self):
@@ -73,7 +76,10 @@ class mainLogic(object):
         assert self.__image is not None, 'No image loaded'
         if self.__seg is not None:
             return self.__seg
-        seg = self.segmentationJointNN(self.__image)
+        # uncomment the line below if you has CUDA on your computer
+        # seg = self.segmentationJointNN(self.__image)
+        # comment the line below if you has CUDA on your computer
+        seg = sitk.ReadImage('.\\nn\\seg\\test_out.nii')
         self.__seg = seg
         return self.__seg
 
@@ -88,8 +94,10 @@ class mainLogic(object):
     def getSuperResolution(self):
         assert self.__image is not None, 'No image loaded'
         if self.__superResolution is not None: return self.__superResolution
-        superResolution = self.superResolutionNN(self.__image)
-        self.__superResolution = superResolution
+        # uncomment the line below if you has CUDA on your computer
+        # superResolution = self.superResolutionNN(self.__image)
+        # comment the line below if you has CUDA on your computer
+        self.__superResolution = sitk.ReadImage('.\\nn\\superResolution\\test_SRout_trans.nii')
         #self.__superResolution = self.__image
         return self.__superResolution
 

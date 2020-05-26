@@ -447,7 +447,11 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
     def saveSelROI(self):
         # to be implemented
         if self.__ROIArray is not None:
-            sitk.WriteImage(sitk.GetImageFromArray(self.__ROIArray), 'mask.nii.gz')
+            image_out = sitk.GetImageFromArray(self.__ROIArray)
+            image_out.SetDirection(self.__image.GetDirection())
+            image_out.SetOrigin(self.__image.GetOrigin())
+            image_out.SetSpacing(self.__image.GetSpacing())
+            sitk.WriteImage(image_out, 'sel_ROI.dcm.nii')
             print('save Sel!')
         return
 
@@ -455,7 +459,12 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
         # to be implemented
         if self.__ROIArray is not None:
             # if self.__labelArray is not None:
-            sitk.WriteImage(sitk.GetImageFromArray(self.__labelArray), 'mask.nii.gz')
+            image_out = sitk.GetImageFromArray(self.__labelArray)
+            image_out.SetDirection(self.__image.GetDirection())
+            image_out.SetOrigin(self.__image.GetOrigin())
+            image_out.SetSpacing(self.__image.GetSpacing())
+            sitk.WriteImage(image_out, 'all_ROI.dcm.nii')
+            # sitk.WriteImage(sitk.GetImageFromArray(self.__labelArray), 'mask.nii.gz')
             # else:
             #     sitk.WriteImage(sitk.GetImageFromArray(self.__ROIArray), 'mask.nii.gz')
             print('save All!')
@@ -510,6 +519,14 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
 
     def setSmoothKernel(self,kernel_size):
         self.__smoothKernel = kernel_size
+        return
+
+    def clrProcess(self):
+        self.__updateImageArray()
+        self.__updateLabelArray()
+        self.__updatePixmapS()
+        self.__updatePixmapA()
+        self.__updatePixmapC()
         return
 
     def smooth(self):
@@ -789,6 +806,8 @@ class SpinBoxWithTextWidget(QWidget):
         # self.sp.valueChanged.connect(self.Valuechange)
         self.btnApply = QPushButton('Apply')
         hbox.addWidget(self.btnApply)
+        self.btnClr = QPushButton('Clear')
+        hbox.addWidget(self.btnClr)
 
 class resampleWidget(QWidget):
     def __init__(self, parent=None, text='Resample'):
@@ -825,7 +844,9 @@ class resampleWidget(QWidget):
         hbox.addWidget(self.sp_z)
         # self.sp.valueChanged.connect(self.Valuechange)
         self.btnApply = QPushButton('Apply')
+
         hbox.addWidget(self.btnApply)
+
 
 class volumeViewerWidget(QWidget):
     displayPercentile = 0.001
@@ -869,7 +890,9 @@ class volumeViewerWidget(QWidget):
                 lambda x: self.viewerSlice.setOpacity(x/self.opacityMax))
 
         self.GaussianBox.btnApply.clicked.connect(self.viewerSlice.smooth)
+        self.GaussianBox.btnClr.clicked.connect(self.viewerSlice.clrProcess)
         self.GaussianBox.sp.valueChanged.connect(self.smoothChange)
+
 
         self.__resampleX = None
         self.__resampleY = None
