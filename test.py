@@ -1,15 +1,31 @@
 import SimpleITK as sitk
 import numpy as np
 
-a = sitk.ReadImage('.\\nn\\superResolution\\test_SRout.nii')
-arr = sitk.GetArrayFromImage(a)
-arr = arr[:,::-1,:]
-sitk.WriteImage(sitk.GetImageFromArray(arr), 'test_out_trans.nii')
+from skimage import exposure
+import numpy as np
+# def histogram_equalize(img):
+#     img_cdf, bin_centers = exposure.cumulative_distribution(img)
+#     return np.interp(img, bin_centers, img_cdf)
 #
-# img = sitk.ReadImage('B2_CESAG.dcm.nii')
+# img = np.random.randint(0,high=256,size=(10,240,240),dtype='l')
+# mask = np.zeros(img.shape).astype('int')
+# mask[5,80:180,80:180]=1
+#
+# print(np.where(mask==1))
+# print(np.where(mask==1)[0][0])
+#
+# a = histogram_equalize(img[0])
+# print(np.shape(a))
+# print(np.max(a),np.min(a))
+# a = sitk.ReadImage('.\\nn\\superResolution\\test_SRout.nii')
+# arr = sitk.GetArrayFromImage(a)
+# arr = arr[:,::-1,:]
+# sitk.WriteImage(sitk.GetImageFromArray(arr), 'test_out_trans.nii')
+# #
+img = sitk.ReadImage('B2_CESAG.dcm.nii')
 # print(img.GetDirection())
-# npa = sitk.GetArrayFromImage(img)
-# print(np.shape(npa))
+npa = sitk.GetArrayFromImage(img)
+print(np.shape(npa))
 # img.SetDirection(a.GetDirection())
 # npa1=sitk.GetArrayFromImage(img)
 # print(np.shape(npa1))

@@ -55,8 +55,6 @@ def select_file(file_address, selected):
 
 def Normalize(image, scale):
 
-    #labelArr=sitk.GetArrayFromImage(label)
-
     image_arr = sitk.GetArrayFromImage(image).astype('float')
 
     min_value = np.percentile(image_arr, 0.1)

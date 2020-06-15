@@ -442,6 +442,12 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
         self.__updatePixmapS()
         self.__updatePixmapA()
         self.__updatePixmapC()
+        # print('1',np.unique(self.__labelArray))
+        tmp = sitk.GetImageFromArray(self.__labelArray)
+        tmp.SetDirection(self.__image.GetDirection())
+        tmp.SetOrigin(self.__image.GetOrigin())
+        tmp.SetSpacing(self.__image.GetSpacing())
+        return tmp
             # np.flipud(self.__imageArray[self.__cur_z, :, :])
 
     def saveSelROI(self):
@@ -958,11 +964,12 @@ class volumeViewerWidget(QWidget):
             self.ThredBox.show()
 
 
-    def setROI(self,ax = 's'):
-        self.viewerSlice.setROI(ax)
+    def setROI(self,ax = 's',type='polygon'):
+        self.viewerSlice.setROI(ax,type)
 
     def accROI(self):
-        self.viewerSlice.accROI()
+        tmp = self.viewerSlice.accROI()
+        return tmp
 
     def saveSelROI(self):
         self.viewerSlice.saveSelROI()

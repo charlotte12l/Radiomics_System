@@ -16,7 +16,7 @@ from PyQt5.QtWidgets import QGridLayout, \
         QVBoxLayout, QHBoxLayout, \
         QFileDialog, QMessageBox, QDialog, QRadioButton,  QButtonGroup
 from PyQt5.QtCore import Qt, pyqtSlot, QSize
-
+from PyQt5.QtGui import QIcon
 from volumeViewerWidget import volumeViewerWidget, volumeSliceViewerWidget
 from volumeViewerWidget_past import volumeViewerWidgetPast
 from featureDispWidget import featureDispWidget
@@ -24,7 +24,7 @@ from statAnalyzelWidget import statAnalyzeWidget
 from clsABWidget import clsABWidget
 from dicomInfoWidget import dicomInfoWidget
 from gradeDispWidget import gradeDispWidget
-from curveWidget import curveWidget
+# from curveWidget import curveWidget
 
 from mainLogic import mainLogic
 
@@ -379,6 +379,8 @@ class mainWindow(QMainWindow):
         # self.controlPanel.btnSel.clicked.connect(self.child_stat.show)
 
         self.annotationPanel.btnDoAnn.clicked.connect(self.actDoAnn)
+        self.annotationPanel.btnDoAnn.setIcon(QIcon("./qdarkstyle/polygon.png"))
+
         self.annotationPanel.btnAccROI.clicked.connect(self.actAccROI)
         self.annotationPanel.btnClrSelROI.clicked.connect(self.actClrSelROI)
         self.annotationPanel.btnClrAllROI.clicked.connect(self.actClrAllROI)
@@ -405,7 +407,11 @@ class mainWindow(QMainWindow):
         return
 
     def actAccROI(self):
-        self.volumeViewer.accROI()
+        # labelArr=self.volumeViewer.accROI()
+        # print(np.unique(labelArr))
+        # print(labelArr.dtype)
+        self.main.setROI(self.volumeViewer.accROI())
+        # self.volumeViewer.setLabel(ROI)
         return
 
     def actSaveSelROI(self):
@@ -638,7 +644,23 @@ class mainWindow(QMainWindow):
         return
 
     def actCuFeatureExt(self):
-        pass
+        start = time.time()
+        self.statusBar().showMessage('Extracting Feature...')
+        try:
+            feature_extracted = self.main.getCuFeature()
+        except Exception as err:
+            msgBox = QMessageBox(self)
+            msgBox.setText(str(type(err)) + str(err))
+            msgBox.exec()
+            self.statusBar().showMessage( \
+                    'Ready ({:.2f}s)'.format(time.time() - start))
+            return
+        self.FeatureDisp.setFeature(feature_extracted)
+        self.dockFeatureDisp.setVisible(True)
+        self.statusBar().showMessage( \
+                'Ready ({:.2f}s)'.format(time.time() - start))
+
+        return
 
     def actSaveImg(self):
         pass

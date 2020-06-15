@@ -29,6 +29,28 @@ class FeatureExt(object):
         #write_csv(result_Of_prostate, filename_of_prostate)
         return result_Of_prostate
 
+class cuFeatureExt(object):
+    def __init__(self):
+        super(cuFeatureExt, self).__init__()
+
+    def __call__(self, *args, **kw):
+        return self.evaluate(*args, **kw)
+
+    def evaluate(self, img, mask_init):
+
+        img_normed = Normalize(img, 255)
+        mask = fuse_mask(mask_init)
+
+        extractor = radiomics.featureextractor.RadiomicsFeatureExtractor(Param)
+
+        # calculate features on prostate mask
+
+        result_Of_prostate = extractor.execute(img_normed, mask)
+        #filename_of_prostate = 'tmp.csv'
+        #write_csv(result_Of_prostate, filename_of_prostate)
+        return result_Of_prostate
+
+
 if __name__ == '__main__':
     #import pandas
 

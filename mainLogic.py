@@ -3,7 +3,7 @@
 import os,sys
 from ReadSagittalPD import ReadSagittalPDs
 from simpleThickness import getCartilageThickness
-from analysis.FeatureExtraction import  FeatureExt
+from analysis.FeatureExtraction import  FeatureExt,cuFeatureExt
 from analysis.FeatureSelection import  FeatureSel
 from nn.superResolution import superResolution
 from nn.seg import segmentationJoint
@@ -22,6 +22,7 @@ class mainLogic(object):
         self.superResolutionNN = None
 
         self.featureExt = FeatureExt()
+        self.cuFeatureExt = cuFeatureExt()
         self.featureSel = FeatureSel()
         self.__image = None
         self.__ROI = None
@@ -30,7 +31,7 @@ class mainLogic(object):
         # self.__grade = None
         # self.__superResolution = None
         # self.__thickness = None
-    
+
     def getImage(self):
         return self.__image
 
@@ -60,6 +61,15 @@ class mainLogic(object):
         if self.__feature_extracted is not None:
             return self.__feature_extracted
         feature_extracted = self.featureExt(self.__image,self.__ROI)
+        self.__feature_extracted = feature_extracted
+        return feature_extracted
+
+    def getCuFeature(self):
+        assert self.__image is not None, 'No image loaded'
+        assert self.__ROI is not None, 'No ROI loaded'
+        if self.__feature_extracted is not None:
+            return self.__feature_extracted
+        feature_extracted = self.cuFeatureExt(self.__image,self.__ROI)
         self.__feature_extracted = feature_extracted
         return feature_extracted
 
