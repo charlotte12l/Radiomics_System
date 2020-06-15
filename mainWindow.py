@@ -120,11 +120,23 @@ class annotationPannelWidget(QWidget):
         childBox.addWidget(self.rbA)
         childBox.addWidget(self.rbC)
 
+
+        self.btnPoly = QPushButton(self)
+        self.btnCircle = QPushButton(self)
+        # self.btnTri = QPushButton('')
+        self.btnJux = QPushButton(self)
+        self.childBoxGeo = QHBoxLayout()
+        self.childBoxGeo.addWidget(self.btnPoly)
+        self.childBoxGeo.addWidget(self.btnCircle)
+        # self.childBoxGeo.addWidget(self.btnTri)
+        self.childBoxGeo.addWidget(self.btnJux)
+
         vbox = QVBoxLayout(self)
         # vbox.addWidget(QLabel("Select AX"))
         # vbox.addSpacing(0)
         vbox.addLayout(childBox)
-        vbox.addWidget(self.btnDoAnn)
+        vbox.addLayout(self.childBoxGeo)
+        # vbox.addWidget(self.btnDoAnn)
         vbox.addWidget(self.btnAccROI)
         vbox.addWidget(self.btnClrSelROI)
         vbox.addWidget(self.btnClrAllROI)
@@ -167,22 +179,6 @@ class mainWindow(QMainWindow):
         self.initUI_Layout()
         self.show()
 
-        #
-        # fileMenu = menubar.addMenu('Pre-processing')
-        # fileMenu.addAction(DenoiseAct)
-        #
-        # self.menutools = QMenu(self.menubar)
-        # self.menutools.setObjectName("menutools")
-        # self.menuload = QtWidgets.QMenu(self.menutools)
-        # self.menuload.setObjectName("menuload")
-        # self.actionimage = QtWidgets.QAction(MainWindow)
-        # self.actionimage.setObjectName("actionimage")
-        # self.action_nii_files = QtWidgets.QAction(MainWindow)
-        # self.action_nii_files.setObjectName("action_nii_files")
-        # self.menuload.addAction(self.actionimage)
-        # self.menuload.addAction(self.action_nii_files)
-        #
-        # self.menubar.addAction(self.menutools.menuAction())
 
     def initUI_Menubar(self):
         menubar = self.menuBar()
@@ -381,6 +377,24 @@ class mainWindow(QMainWindow):
         self.annotationPanel.btnDoAnn.clicked.connect(self.actDoAnn)
         self.annotationPanel.btnDoAnn.setIcon(QIcon("./qdarkstyle/polygon.png"))
 
+        self.annotationPanel.btnPoly.clicked.connect(self.actSetPoly)
+        self.annotationPanel.btnPoly.setIcon((QIcon("./qdarkstyle/polygon.png")))
+        # self.annotationPanel.btnPoly.setStyleSheet("QPushButton{border-image: url(./qdarkstyle/polygon.png)}")
+
+        self.annotationPanel.btnCircle.clicked.connect(self.actSetCircle)
+        self.annotationPanel.btnCircle.setIcon((QIcon("./qdarkstyle/circle.png")))
+
+        # self.annotationPanel.btnTri.clicked.connect(self.actSetTri)
+        # self.annotationPanel.btnTri.setIcon((QIcon("./qdarkstyle/tri.png")))
+
+        self.annotationPanel.btnJux.clicked.connect(self.actSetJux)
+        self.annotationPanel.btnJux.setIcon((QIcon("./qdarkstyle/juxing.png")))
+
+        # childBoxGeo.addWidget(self.btnPoly)
+        # childBoxGeo.addWidget(self.btnCircle)
+        # childBoxGeo.addWidget(self.btnTri)
+        # childBoxGeo.addWidget(self.btnJux)
+
         self.annotationPanel.btnAccROI.clicked.connect(self.actAccROI)
         self.annotationPanel.btnClrSelROI.clicked.connect(self.actClrSelROI)
         self.annotationPanel.btnClrAllROI.clicked.connect(self.actClrAllROI)
@@ -396,14 +410,32 @@ class mainWindow(QMainWindow):
         self.FeatureDisp.cellPressed.connect( \
                 lambda row, col: self.volumeViewer.sliderIndex.setValue(row+1))
 
+    def actSetPoly(self):
+        self.__type ='Poly'
+        self.actDoAnn()
+        return
+    def actSetCircle(self):
+        self.__type ='Circle'
+        self.actDoAnn()
+        return
+
+    # def actSetTri(self):
+    #     self.__type ='Tri'
+    #     self.actDoAnn()
+    #     return
+
+    def actSetJux(self):
+        self.__type = 'Jux'
+        self.actDoAnn()
+        return
 
     def actDoAnn(self):
         if self.annotationPanel.rbS.isChecked()==True:
-            self.volumeViewer.setROI(ax='S')
+            self.volumeViewer.setROI(ax='S',type = self.__type)
         if self.annotationPanel.rbA.isChecked() == True:
-            self.volumeViewer.setROI(ax='A')
+            self.volumeViewer.setROI(ax='A',type = self.__type)
         if self.annotationPanel.rbC.isChecked() == True:
-            self.volumeViewer.setROI(ax='C')
+            self.volumeViewer.setROI(ax='C',type = self.__type)
         return
 
     def actAccROI(self):

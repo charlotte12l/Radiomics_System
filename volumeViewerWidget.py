@@ -332,17 +332,25 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
         self.__updatePixmapA()
         self.__updatePixmapC()
 
-    def setROI(self,ax = 's'):
+    def setROI(self,ax = 's',type='Poly'):
         if self.__image is None:
             return
         self.__ROIArray = np.zeros(self.__imageArray.shape)
+
+
         if ax =='S':
             self.__ROIAx = ax
-            points =  np.array([[np.shape(self.__sagittal)[0]//4,np.shape(self.__sagittal)[1]//4],
-                                [np.shape(self.__sagittal)[0] // 4, np.shape(self.__sagittal)[1] // 2],
-                                [np.shape(self.__sagittal)[0] // 2, np.shape(self.__sagittal)[1] // 2]]
-                               )
-            self.__ROI = pg.PolyLineROI(points,closed=True)
+            if type == 'Poly':
+                points =  np.array([[np.shape(self.__sagittal)[0]//4,np.shape(self.__sagittal)[1]//4],
+                                    [np.shape(self.__sagittal)[0] // 4, np.shape(self.__sagittal)[1] // 2],
+                                    [np.shape(self.__sagittal)[0] // 2, np.shape(self.__sagittal)[1] // 2]]
+                                   )
+                self.__ROI = pg.PolyLineROI(points,closed=True)
+            elif type=='Circle':
+                self.__ROI = pg.EllipseROI([np.shape(self.__sagittal)[0] // 2, np.shape(self.__sagittal)[1] // 2], [np.shape(self.__sagittal)[0]//8,np.shape(self.__sagittal)[1]//8])
+            else:
+                self.__ROI = pg.RectROI([np.shape(self.__sagittal)[0] // 2, np.shape(self.__sagittal)[1] // 2], [np.shape(self.__sagittal)[0]//8,np.shape(self.__sagittal)[1]//8])
+
             self.p_s.addItem(self.__ROI)
             cols, rows = self.__sagittal.shape
             m = np.mgrid[:cols, :rows]
@@ -354,17 +362,19 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
 
         if ax =='A':
             self.__ROIAx = ax
-            # points =  np.array([[np.shape(self.__axial)[0]//4,np.shape(self.__axial)[1]//4],
-            #                     [np.shape(self.__axial)[0] // 4, np.shape(self.__axial)[1] // 2],
-            #                     [np.shape(self.__axial)[0] // 2, np.shape(self.__axial)[1] // 2]]
-            #                    )
-            points =  np.array([[np.shape(self.__axial)[1]//4,np.shape(self.__axial)[0]//4],
-                                [ np.shape(self.__axial)[1] // 2,np.shape(self.__axial)[0] // 4],
-                                [np.shape(self.__axial)[1] // 2, np.shape(self.__axial)[0] // 2]]
-                               )
-            self.__ROI = pg.PolyLineROI(points,closed=True)
+            if type == 'Poly':
+                points = np.array([[np.shape(self.__axial)[1] // 4, np.shape(self.__axial)[0] // 4],
+                                   [np.shape(self.__axial)[1] // 2, np.shape(self.__axial)[0] // 4],
+                                   [np.shape(self.__axial)[1] // 2, np.shape(self.__axial)[0] // 2]]
+                                  )
+                self.__ROI = pg.PolyLineROI(points,closed=True)
+            elif type=='Circle':
+                self.__ROI = pg.EllipseROI([np.shape(self.__axial)[1] // 2, np.shape(self.__axial)[0] // 2], [np.shape(self.__axial)[1] // 8, np.shape(self.__axial)[0] // 8])
+            else:
+                self.__ROI = pg.RectROI([np.shape(self.__axial)[1] // 2, np.shape(self.__axial)[0] // 2], [np.shape(self.__axial)[1] // 8, np.shape(self.__axial)[0] // 8])
+
             self.p_a.addItem(self.__ROI)
-            print('add a!',points)
+            # print('add a!',points)
             cols, rows = self.__axial.shape
             m = np.mgrid[:cols, :rows]
             self.possx = m[0, :, :]  # make the x pos array
@@ -375,11 +385,17 @@ class volumeSliceViewerWidget(pg.GraphicsLayoutWidget):
 
         if ax =='C':
             self.__ROIAx = ax
-            points =  np.array([[np.shape(self.__coronal)[1]//4,np.shape(self.__coronal)[0]//4],
-                                [np.shape(self.__coronal)[1] // 2, np.shape(self.__coronal)[0] // 4],
-                                [np.shape(self.__coronal)[1] // 2, np.shape(self.__coronal)[0] // 2]]
-                               )
-            self.__ROI = pg.PolyLineROI(points,closed=True)
+            if type == 'Poly':
+                points = np.array([[np.shape(self.__coronal)[1] // 4, np.shape(self.__coronal)[0] // 4],
+                                   [np.shape(self.__coronal)[1] // 2, np.shape(self.__coronal)[0] // 4],
+                                   [np.shape(self.__coronal)[1] // 2, np.shape(self.__coronal)[0] // 2]]
+                                  )
+                self.__ROI = pg.PolyLineROI(points,closed=True)
+            elif type=='Circle':
+                self.__ROI = pg.EllipseROI([np.shape(self.__coronal)[1] // 2, np.shape(self.__coronal)[0] // 2], [np.shape(self.__coronal)[1] // 8, np.shape(self.__coronal)[0] // 8])
+            else:
+                self.__ROI = pg.RectROI([np.shape(self.__coronal)[1] // 2, np.shape(self.__coronal)[0] // 2], [np.shape(self.__coronal)[1] // 8, np.shape(self.__coronal)[0] // 8])
+
             self.p_c.addItem(self.__ROI)
             cols, rows = self.__coronal.shape
             m = np.mgrid[:cols, :rows]
@@ -964,7 +980,7 @@ class volumeViewerWidget(QWidget):
             self.ThredBox.show()
 
 
-    def setROI(self,ax = 's',type='polygon'):
+    def setROI(self,ax = 's',type='Poly'):
         self.viewerSlice.setROI(ax,type)
 
     def accROI(self):

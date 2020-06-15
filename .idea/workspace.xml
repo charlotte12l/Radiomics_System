@@ -13,44 +13,85 @@
     <SUITE FILE_PATH="coverage/Cartilage_Evaluation_System$FeatureExtraction.coverage" NAME="FeatureExtraction Coverage Results" MODIFIED="1583154918036" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/analysis" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/mainWindow.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="200">
-              <caret line="382" column="8" selection-start-line="382" selection-start-column="8" selection-end-line="382" selection-end-column="8" />
-              <folding>
-                <element signature="e#20#33#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mainLogic.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1470">
-              <caret line="49" column="14" selection-start-line="49" selection-start-column="8" selection-end-line="49" selection-end-column="14" />
-              <folding>
-                <element signature="e#20#33#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/volumeViewerWidget.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="967" column="39" selection-start-line="967" selection-start-column="39" selection-end-line="967" selection-end-column="39" />
-              <folding>
-                <element signature="e#20#157#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <splitter split-orientation="horizontal" split-proportion="0.8624031">
+      <split-first>
+        <leaf>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/mainWindow.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="374">
+                  <caret line="180" selection-start-line="180" selection-end-line="180" />
+                  <folding>
+                    <element signature="e#20#33#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/mainLogic.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="-1950">
+                  <caret line="49" column="14" selection-start-line="49" selection-start-column="8" selection-end-line="49" selection-end-column="14" />
+                  <folding>
+                    <element signature="e#20#33#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/volumeViewerWidget.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="1572">
+                  <caret line="397" lean-forward="true" selection-start-line="397" selection-end-line="397" />
+                  <folding>
+                    <element signature="e#20#157#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/ROIExample.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="187">
+                  <caret line="55" column="55" lean-forward="true" selection-start-line="55" selection-start-column="12" selection-end-line="55" selection-end-column="55" />
+                  <folding>
+                    <element signature="e#242#264#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://D:/Program/Miniconda3/envs/bs/Lib/site-packages/pyqtgraph/graphicsItems/ROI.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="174">
+                  <caret line="1534" column="8" selection-start-line="1534" selection-start-column="8" selection-end-line="1534" selection-end-column="8" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf>
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/mainWindow.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="164">
+                  <caret line="421" selection-start-line="421" selection-end-line="424" selection-end-column="16" />
+                  <folding>
+                    <element signature="e#20#33#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-second>
+    </splitter>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -61,12 +102,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>superResolutionNN</find>
-      <find>reso</find>
-      <find>srv</find>
-      <find>superResolution</find>
-      <find>btnex</find>
-      <find>SR</find>
       <find>contro</find>
       <find>btnsave</find>
       <find>dicomin</find>
@@ -89,8 +124,14 @@
       <find>lab</find>
       <find>acc</find>
       <find>ROI</find>
-      <find>setROI</find>
       <find>actDoAnn</find>
+      <find>ann</find>
+      <find>png</find>
+      <find>ploy</find>
+      <find>childBox</find>
+      <find>setROI</find>
+      <find>btnPoly</find>
+      <find>pol</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -140,8 +181,8 @@
         <option value="$PROJECT_DIR$/analysis/ToolsFunc.py" />
         <option value="$PROJECT_DIR$/mainLogic.py" />
         <option value="$PROJECT_DIR$/test.py" />
-        <option value="$PROJECT_DIR$/volumeViewerWidget.py" />
         <option value="$PROJECT_DIR$/mainWindow.py" />
+        <option value="$PROJECT_DIR$/volumeViewerWidget.py" />
       </list>
     </option>
   </component>
@@ -185,6 +226,11 @@
               <item name="Radiomics_System" type="462c0819:PsiDirectoryNode" />
               <item name="nn" type="462c0819:PsiDirectoryNode" />
               <item name="superResolution" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Radiomics_System" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Radiomics_System" type="462c0819:PsiDirectoryNode" />
+              <item name="qdarkstyle" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -312,12 +358,12 @@
       <workItem from="1591248296197" duration="1425000" />
       <workItem from="1592058970702" duration="629000" />
       <workItem from="1592124351758" duration="2068000" />
-      <workItem from="1592193781320" duration="17830000" />
+      <workItem from="1592193781320" duration="20658000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="391351000" />
+    <option name="totallyTimeSpent" value="394179000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
@@ -328,7 +374,7 @@
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.17868853" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.06065574" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.15220949" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -373,21 +419,6 @@
     <option name="version" value="1" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/analysis/Params.yaml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-450" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../../cuRadiomics-master/python/func_cuRadiomics.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="86" column="36" selection-start-line="86" selection-start-column="36" selection-end-line="86" selection-end-column="36" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/nn/segmentation/segmentation.py" />
     <entry file="file://$PROJECT_DIR$/analysis/py_params.yaml">
       <provider selected="true" editor-type-id="text-editor">
@@ -696,16 +727,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ROIExample.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="600">
-          <caret line="59" column="19" lean-forward="true" selection-start-line="59" selection-start-column="19" selection-end-line="59" selection-end-column="19" />
-          <folding>
-            <element signature="e#242#264#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../trash/imageViewerWidget.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="350">
@@ -750,19 +771,23 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/volumeViewerWidget.py">
+    <entry file="file://D:/Program/Miniconda3/envs/bs/Lib/site-packages/pyqtgraph/graphicsItems/ROI.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="967" column="39" selection-start-line="967" selection-start-column="39" selection-end-line="967" selection-end-column="39" />
-          <folding>
-            <element signature="e#20#157#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="174">
+          <caret line="1534" column="8" selection-start-line="1534" selection-start-column="8" selection-end-line="1534" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/demo1.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="48" selection-start-line="21" selection-end-line="48" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mainLogic.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1470">
+        <state relative-caret-position="-1950">
           <caret line="49" column="14" selection-start-line="49" selection-start-column="8" selection-end-line="49" selection-end-column="14" />
           <folding>
             <element signature="e#20#33#0" expanded="true" />
@@ -770,12 +795,32 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/ROIExample.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="55" column="55" lean-forward="true" selection-start-line="55" selection-start-column="12" selection-end-line="55" selection-end-column="55" />
+          <folding>
+            <element signature="e#242#264#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/mainWindow.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="382" column="8" selection-start-line="382" selection-start-column="8" selection-end-line="382" selection-end-column="8" />
+        <state relative-caret-position="374">
+          <caret line="180" selection-start-line="180" selection-end-line="180" />
           <folding>
             <element signature="e#20#33#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/volumeViewerWidget.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1572">
+          <caret line="397" lean-forward="true" selection-start-line="397" selection-end-line="397" />
+          <folding>
+            <element signature="e#20#157#0" expanded="true" />
           </folding>
         </state>
       </provider>
