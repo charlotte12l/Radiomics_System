@@ -18,13 +18,10 @@ from PyQt5.QtWidgets import QGridLayout, \
 from PyQt5.QtCore import Qt, pyqtSlot, QSize
 from PyQt5.QtGui import QIcon
 from volumeViewerWidget import volumeViewerWidget, volumeSliceViewerWidget
-from volumeViewerWidget_past import volumeViewerWidgetPast
 from featureDispWidget import featureDispWidget
 from statAnalyzelWidget import statAnalyzeWidget
 from clsABWidget import clsABWidget
 from dicomInfoWidget import dicomInfoWidget
-from gradeDispWidget import gradeDispWidget
-# from curveWidget import curveWidget
 
 from mainLogic import mainLogic
 

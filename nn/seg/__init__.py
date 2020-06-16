@@ -1,1 +1,1 @@
-from .segmentation import segmentationJoint, segmentationSwollen
+from .segmentation import segmentationJoint

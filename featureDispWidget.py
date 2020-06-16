@@ -19,17 +19,12 @@ class featureDispWidget(QTableWidget):
         name, value = zip(*list)
         #classesNumber = 2
         #assert values.shape[1] == classesNumber
-        self.setRowCount(len(name)-22)
+        self.setRowCount(len(name))
         #probs = values.tolist()
-        for i in range(len(name)-22):
-            #confidence = max(prob)
-            #grade = prob.index(confidence)
-            nameItem = QTableWidgetItem(str(name[i+22]))
+        for i in range(len(name)):
+            nameItem = QTableWidgetItem(str(name[i]))
             self.setItem(i, 0, nameItem)
-            #if grade > 0:
-                #gradeItem.setBackground(Qt.blue)
-            #self.setItem(i, 1, QTableWidgetItem(format(value[i], '.8f')))
-            self.setItem(i, 1, QTableWidgetItem(str(value[i+22])))
+            self.setItem(i, 1, QTableWidgetItem(str(value[i])))
         return
 
 if __name__ == '__main__':

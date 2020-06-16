@@ -4,8 +4,14 @@ import sys, os
 import radiomics
 from analysis.ToolsFunc import select_file, write_csv, Normalize, fuse_mask
 import numpy as np
+# from cuRadiomics.python.func_cuRadiomics import func_cuRadiomics
 
-Param = './Params.yaml'
+Param = './py_params.yaml'
+yaml_addr = './analysis/cu_params.yaml'
+
+def hist_equal(img):
+    img_cdf,bin_centers = exposure.cumulative_distribution(img)
+    return np.interp(img,bin_centers,img_cdf)
 
 # def FeatureExtraction(Param, addr, selector, sav_folder, mask_value):
 class FeatureExt(object):
@@ -37,18 +43,26 @@ class cuFeatureExt(object):
         return self.evaluate(*args, **kw)
 
     def evaluate(self, img, mask_init):
-
+        #print('a')
         img_normed = Normalize(img, 255)
         mask = fuse_mask(mask_init)
 
-        extractor = radiomics.featureextractor.RadiomicsFeatureExtractor(Param)
+        arr_img = sitk.GetArrayFromImage(img_normed)
+        arr_msk = sitk.GetArrayFromImage(mask)
+        slice_no = np.where(arr_msk==1)[0][0]
+        #print(slice_no)
 
-        # calculate features on prostate mask
+        arr_img = arr_img[slice_no,:,:]
+        arr_msk = arr_msk[slice_no,:,:]
 
-        result_Of_prostate = extractor.execute(img_normed, mask)
-        #filename_of_prostate = 'tmp.csv'
-        #write_csv(result_Of_prostate, filename_of_prostate)
-        return result_Of_prostate
+        arr_img = arr_img[np.newaxis,:,:]
+        arr_msk = arr_msk[np.newaxis,:,:]
+
+        # uncomment
+        # features = func_cuRadiomics(yaml_addr, arr_img, arr_msk)
+        features = np.load('./analysis/features.npy',allow_pickle=True).item()
+
+        return features
 
 
 if __name__ == '__main__':

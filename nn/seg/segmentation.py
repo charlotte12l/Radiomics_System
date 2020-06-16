@@ -7,26 +7,20 @@ import numpy as np
 import torch
 import cv2
 
-from nn.trainer.trainer import Trainer
-from nn.segmentation.utils.utils_data import calM_2D
-#from .trainer import Trainer
-#from .utils_data import calM_2D
+
 
 class segmentation(object):
     def __init__(self, ConfigFilePath):
         super(segmentation, self).__init__()
         configPath = os.path.join(\
                 os.path.dirname(__file__), ConfigFilePath)
-        # load config
+        # please load config, model and saved parameters
         with open(configPath, 'r') as f:
             config = json.load(f)
         self.spacing = config['voxelSpacing']
         self.crop = config['crop']
         # load saved parameters
-        self.net = Trainer(os.path.join(\
-                os.path.dirname(configPath), config['trainedModel']))
-        self.hmTemplate = sitk.ReadImage(os.path.join(\
-                os.path.dirname(configPath), config['hmTemplate']))
+        self.net = YourNet
 
     def __call__(self, *args, **kw):
         return self.evaluate(*args, **kw)
@@ -39,7 +33,6 @@ class segmentation(object):
         array = torch.LongTensor()
         for i in range(inputs.shape[0]):
             output = self.net.model(inputs[i:i+1,:,:,:].cuda())
-            #print(output.data.min() , output.data.mean(), output.data.var(), output.data.max())
             prob = torch.nn.functional.softmax(output, dim=1)
             _, prediction = torch.max(prob, 1)
             array = torch.cat([array, prediction.cpu().detach()])
@@ -105,8 +98,3 @@ class segmentationJoint(segmentation):
         super(segmentationJoint, self).__init__( \
                 ConfigFilePath='./configJoint.json')
 
-
-class segmentationSwollen(segmentation):
-    def __init__(self):
-        super(segmentationSwollen, self).__init__( \
-                ConfigFilePath='./configSwollen.json')
