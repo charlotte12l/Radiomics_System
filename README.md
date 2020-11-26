@@ -2,7 +2,7 @@
 
 ## Introduction
 This is a radiomics-computing system which supports 3D medical image visualization, annotation, feature extraction and analysis.
-Video demos and figures can be seen on the [website](https://sites.google.com/view/radiomics-computing-platform/homepage).
+Video [demo](https://youtu.be/mqR0WP9Neh8) and figures can be found on the [website](https://sites.google.com/view/radiomics-computing-platform/homepage).
 
 ## Environment
 This package is based on Python 3.6, and uses external packages like PyQt5, to reproduce the environment on your computer, please do:
@@ -18,7 +18,8 @@ After setting up the environment, please first activate the environment and then
 conda activate bs
 python app.py
 ```
- A GUI interface would appear. Here is a demo on how to use the package.
-
-<video src="https://youtu.be/mqR0WP9Neh8" controls="controls" width="500" height="300">Demo</video>
-
+ A GUI interface would appear:
+ 
+ ![GUI](https://github.com/charlotte12l/Radiomics_System/fig/MainWindow.png) 
+ 
+ Here is a [demo](https://youtu.be/mqR0WP9Neh8) on how to use the package. You can find more on the  [website](https://sites.google.com/view/radiomics-computing-platform/homepage).
