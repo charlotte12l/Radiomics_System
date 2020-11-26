@@ -58,8 +58,9 @@ class cuFeatureExt(object):
         arr_img = arr_img[np.newaxis,:,:]
         arr_msk = arr_msk[np.newaxis,:,:]
 
-        # uncomment
+        # uncomment the following line to support cuda, but you should set up the environment correctly first
         # features = func_cuRadiomics(yaml_addr, arr_img, arr_msk)
+        # for better display, I just save the cuda result and load the file directly.
         features = np.load('./analysis/features.npy',allow_pickle=True).item()
 
         return features
