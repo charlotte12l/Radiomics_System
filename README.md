@@ -20,6 +20,6 @@ python app.py
 ```
  A GUI interface would appear:
  
- ![GUI](https://github.com/charlotte12l/Radiomics_System/fig/MainWindow.png) 
+ ![GUI](https://github.com/charlotte12l/Radiomics_System/blob/master/fig/MainWindow.png) 
  
  Here is a [demo](https://youtu.be/mqR0WP9Neh8) on how to use the package. You can find more on the  [website](https://sites.google.com/view/radiomics-computing-platform/homepage).
